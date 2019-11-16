@@ -22,5 +22,28 @@ describe('/cascade', () => {
 
   })
 
+  describe('buildCascadeProps', () => {
+
+    it('', () => {
+      
+    })
+
+  })
+
+  describe('getCascadeId', () => {
+
+    it('', () => {
+      
+    })
+
+  })
+  
+  describe('findCascadeId', () => {
+
+    it('', () => {
+      
+    })
+
+  })
 
 })

@@ -18,11 +18,11 @@ export const getCatalogProps = (catalog, id) => {
  *
  * @returns {string}
  */
-export const getRenderKey = (catalog, id) => {
+export const getAltRender = (catalog, id) => {
 
   // Get catalogProps based on the id
   const catalogProps = getCatalogProps(catalog, id)
 
-  // Get the key || renderKey from the catalogProps
-  return isObj(catalogProps) && (catalogProps.renderKey || catalogProps.key)
+  // Get the key || altRender from the catalogProps
+  return isObj(catalogProps) && (catalogProps.altRender || catalogProps.render)
 }

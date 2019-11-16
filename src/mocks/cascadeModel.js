@@ -69,6 +69,7 @@ export const cascadeModel = {
     '3af353c4-64f9-4edf-8324-bcbdf37d88cc': {
       id: '3af353c4-64f9-4edf-8324-bcbdf37d88cc',
       pos: '2.0',
+      altRender: 'Row'
     },
     '68a37655-3d0a-4c67-8fe7-da944b63da04': {
       id: '68a37655-3d0a-4c67-8fe7-da944b63da04',

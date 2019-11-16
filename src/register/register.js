@@ -1,6 +1,6 @@
 import { isObj, get } from 'jsutils'
 import React from 'react'
-import { getRenderKey, findCascadeId } from '../utils'
+import { getAltRender, findCascadeId } from '../utils'
 
 // Cache to hold registered components
 let ComponentCache = {}
@@ -42,7 +42,7 @@ export const getRegisteredComponent = (cascade, { catalog, identity }, props, pa
   const cascadeId = findCascadeId(cascade, identity, props, parent)
     
   // Use cascade Id to get the render key of the cascade node
-  const cascadeKey = cascadeId && getRenderKey(catalog, cascadeId)
+  const cascadeKey = cascadeId && getAltRender(catalog, cascadeId)
 
   // Look for the component by key, type, id
   return ComponentCache[cascadeKey] || ComponentCache[cascade[0]] || ComponentCache[cascadeId]
