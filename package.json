@@ -1,0 +1,55 @@
+{
+  "name": "cascader",
+  "version": "1.0.0",
+  "description": "React Cascade Render",
+  "main": "index.js",
+  "repository": "https://github.com/lancetipton/cascader",
+  "author": "Lance Tipton",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "NODE_ENV=test jest --no-cache --verbose"
+  },
+  "devDependencies": {
+    "@babel/core": "7.5.5",
+    "@babel/preset-env": "7.5.5",
+    "@babel/preset-react": "7.0.0",
+    "babel-jest": "24.7.1",
+    "jest": "24.7.1",
+    "rollup": "1.20.3",
+    "rollup-plugin-babel": "4.3.3",
+    "rollup-plugin-cleanup": "3.1.1",
+    "rollup-plugin-commonjs": "10.1.0",
+    "rollup-plugin-node-resolve": "5.2.0",
+    "rollup-plugin-replace": "2.2.0"
+  },
+  "peerDependencies": {
+    "jsutils": "git+https://github.com/lancetipton/jsutils.git",
+    "react": ">= 16.8.3"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.js?(x)"
+    ],
+    "collectCoverageFrom": [
+      "<rootDir>/src/index.js"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "jsx",
+      "es6"
+    ],
+    "globals": {
+      "__DEV__": true
+    },
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/setupTests.js"
+    ]
+  }
+}
