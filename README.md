@@ -1,5 +1,5 @@
 # Cascader
-React ant React Native Cascade Render
+React Cascade Render
 
 
 # Setup
