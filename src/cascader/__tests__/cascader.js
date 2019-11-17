@@ -27,6 +27,26 @@ describe('/cascader', () => {
 
   })
 
+  it('should render the passed in cascade model without IDs', () => {
+
+    const cascade = { 0: 'div', 1: {}, 2: [ 'I am some text' ] }
+    const rendered = Cascader({ cascade })
+
+    expect(rendered.type).toBe(cascade[0])
+    expect(rendered.props.children[0]).toBe(cascade[2][0])
+
+  })
+
+  it('should render single children text element', () => {
+
+    const cascade = { 0: 'div', 1: {}, 2: 'I am some text' }
+    const rendered = Cascader({ cascade })
+
+    expect(rendered.type).toBe(cascade[0])
+    expect(rendered.props.children).toBe(cascade[2])
+
+  })
+
   it('should render when only the cascade is passed in', () => {
 
     const rendered = Cascader({ cascade: cascadeModel.cascade })

@@ -13,17 +13,18 @@ import { get, isObj, isStr, isArr, deepMerge, softFalsy } from 'jsutils'
  * @return {string} Found the Id from the cascade node position in the identity
  */
 export const getIdentityId = (cascade, identity={}, parent) => {
+
   if(!isObj(parent) || !isObj(cascade)) return
-  
+
   // Get the parent pos, and the parent cascade node
-  const { props, cascade: parentCascade } = parent
+  const { props, cascade: parentCascade, CASCADE_ROOT } = parent
 
   // Get the parents position
   const parentPos = get(props, [ 'pos' ])
 
   // Ensure the parent node and the parent pos exit
   if(!isObj(parentCascade) || !isStr(parentPos))
-    return console.warn(`Parent cascade does not exist!`, parent, cascade)
+    return !CASCADE_ROOT && console.warn(`Parent cascade does not exist!`, parent, cascade)
 
   // position of the cascade within the children === the pos of the cascade node
   const pos = parentCascade[2].indexOf(cascade)

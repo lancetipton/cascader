@@ -80,10 +80,10 @@ export const Cascader = props => {
     props.cascade,
     {
       catalog: eitherObj(props.catalog, {}),
-      styles: eitherObj(props.styles, {}),
-      identity: eitherObj(props.identity, {}),
+      styles: props.styles,
+      identity: props.identity,
     },
-    eitherObj(props.parent, {})
+    { ...eitherObj(props.parent, {}), CASCADE_ROOT: true }
   )
 
 }

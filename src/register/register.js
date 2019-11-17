@@ -65,8 +65,11 @@ class Registry {
   * @returns {React Component} - Matching registered component
   */
   find(cascade, props, catalog, identity, parent){
+
     // Find the Id of the cascade node
-    const cascadeId = findCascadeId(cascade, props, identity, parent)
+    const cascadeId = !isObj(identity) || !isObj(parent)
+      ? getCascadeId(cascade, props)
+      : findCascadeId(cascade, props, identity, parent)
 
     // Use cascade Id to get the render key of the cascade node
     const cascadeKey = cascadeId && getAltRender(catalog, cascadeId)
