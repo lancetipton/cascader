@@ -19,7 +19,7 @@ const getRenderEl = (cascade, metadata, props, parent) => {
   return React.createElement(
     findComponent(cascade, props, catalog, identity, parent),
     props,
-    renderCascade(children, metadata, { cascade, parent, props })
+    renderCascade(cascade[2], metadata, { cascade, parent, props })
   )
 }
 /**
@@ -46,7 +46,7 @@ const renderCascade = (cascade, metadata, parent) => {
   
   // Get the element to be rendered, and return it
   return isArr(cascade)
-    ? cascade.map(child => render(child, metadata, parent))
+    ? cascade.map(child => renderCascade(child, metadata, parent))
     : cascade[0] && getRenderEl(
         cascade,
         metadata,
@@ -70,7 +70,7 @@ const renderCascade = (cascade, metadata, parent) => {
 export const Cascader = props => {
 
   // Ensure a cascade object exists
-  if(!isObj(props) || !isObj(props.cascade)){
+  if(!isObj(props) || !isColl(props.cascade)){
     console.warn(`Cascader requires a cascade object as a prop!`, props)
     return null
   }

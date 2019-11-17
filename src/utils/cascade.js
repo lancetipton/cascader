@@ -52,7 +52,7 @@ export const getIdentityId = (cascade, identity={}, parent) => {
 export const buildCascadeProps = (cascade, metadata, parent) => {
   // Get the props directly on the cascade node
   const inlineProps = get(cascade, [ '1' ], {})
-  
+
   // Get the identity and catalog from finding the cascade node metadata
   const { identity, catalog } = metadata
 
@@ -61,13 +61,18 @@ export const buildCascadeProps = (cascade, metadata, parent) => {
 
   // If no id on the inline props, then no way to get metadata props || parent props
   // If there is an id, get the metadata && parent props
-  return !cascadeId
+  const cascadeProps = !cascadeId
     ? inlineProps
     : deepMerge(
         get(parent, [ 'props', 'children', cascadeId ]),
         catalog[cascadeId],
         inlineProps
       )
+
+  // Ensure a key is added to the props, use either the ID or the pos
+  cascadeProps.key = cascadeProps.key || cascadeProps.id || cascadeProps.pos
+  
+  return cascadeProps
 }
 
 /**

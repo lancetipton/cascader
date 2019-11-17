@@ -13,11 +13,11 @@ describe('/register', () => {
 
   beforeEach(() => jest.resetAllMocks())
 
-  describe('register', () => {
+  describe('registerComponents', () => {
 
     it('should register the passed in components to the component cache', () => {
 
-      const compCache = Register.register({ TestComp })
+      const compCache = Register.registerComponents({ TestComp })
 
       expect(compCache.TestComp === TestComp).toBe(true)
 
@@ -29,7 +29,7 @@ describe('/register', () => {
 
       const oldWarn = console.warn
       console.warn = jest.fn()
-      const compCache = Register.register(null)
+      const compCache = Register.registerComponents(null)
 
       expect(console.warn).toHaveBeenCalled()
 
@@ -41,7 +41,7 @@ describe('/register', () => {
 
       const oldWarn = console.warn
       console.warn = jest.fn()
-      const compCache = Register.register([])
+      const compCache = Register.registerComponents([])
 
       expect(console.warn).toHaveBeenCalled()
 
@@ -55,7 +55,7 @@ describe('/register', () => {
 
     it('should remove only the component the matches the passed in key', () => {
 
-      Register.register({ TestComp, OtherComp: TestComp })
+      Register.registerComponents({ TestComp, OtherComp: TestComp })
 
       Register.removeComponent('TestComp')
       const compNames = Object.keys(Register.getComponents())
@@ -73,7 +73,7 @@ describe('/register', () => {
 
     it('should remove all components', () => {
 
-      Register.register({ TestComp, OtherComp: TestComp })
+      Register.registerComponents({ TestComp, OtherComp: TestComp })
 
       Register.removeComponents()
 
@@ -89,7 +89,7 @@ describe('/register', () => {
 
     it('should return only the component the matches the passed in key', () => {
 
-      Register.register({ TestComp, OtherComp: TestComp })
+      Register.registerComponents({ TestComp, OtherComp: TestComp })
 
       expect(Register.getComponent('TestComp')).toBe(TestComp)
 
@@ -97,7 +97,7 @@ describe('/register', () => {
 
     it('should return falsy when no key is passed', () => {
       const allComps = { TestComp, OtherComp: TestComp }
-      Register.register(allComps)
+      Register.registerComponents(allComps)
 
       expect(Register.getComponent()).toBeFalsy()
 
@@ -109,7 +109,7 @@ describe('/register', () => {
 
     it('should return all components when no key is passed in', () => {
       const allComps = { TestComp, OtherComp: TestComp }
-      Register.register(allComps)
+      Register.registerComponents(allComps)
 
       Object.keys(Register.getComponents())
         .map(key => expect(allComps[key]).toBe(TestComp))
@@ -134,7 +134,7 @@ describe('/register', () => {
 
     it('should get the altRender component when one exists', () => {
 
-      Register.register({ Row: TestComp })
+      Register.registerComponents({ Row: TestComp })
 
       const parent = buildParent('0')
       const node = get(cascade, '2.0')
@@ -146,7 +146,7 @@ describe('/register', () => {
 
     it('should get the render component when one exists, and no altRender key exists', () => {
 
-      Register.register({ Container: TestComp })
+      Register.registerComponents({ Container: TestComp })
 
       const parent = buildParent('0')
       const node = get(cascade, '2.0')
@@ -161,7 +161,7 @@ describe('/register', () => {
 
     it('should get a component when the cascade capitalized type matches', () => {
 
-      Register.register({ Div: TestComp })
+      Register.registerComponents({ Div: TestComp })
 
       const parent = buildParent('2.0')
       const node = get(cascade, '2.0.2.0')
@@ -177,7 +177,7 @@ describe('/register', () => {
 
     it('should get a component when the cascade type matches', () => {
 
-      Register.register({ div: TestComp })
+      Register.registerComponents({ div: TestComp })
 
       const parent = buildParent('2.0')
       const node = get(cascade, '2.0.2.0')
@@ -196,7 +196,7 @@ describe('/register', () => {
       const parent = buildParent('2.0')
       const node = get(cascade, '2.0.2.0')
 
-      Register.register({ [node[1].id]: TestComp2 })
+      Register.registerComponents({ [node[1].id]: TestComp2 })
 
       delete catalog[ node[1].id ].altRender
       delete catalog[ node[1].id ].render
@@ -209,7 +209,7 @@ describe('/register', () => {
 
     it('should return the type when no matching component exists', () => {
 
-      Register.register({ Row: TestComp, Container: TestComp2 })
+      Register.registerComponents({ Row: TestComp, Container: TestComp2 })
       const parent = buildParent('0')
       const node = get(cascade, '2.0')
 
@@ -227,7 +227,7 @@ describe('/register', () => {
       const parent = buildParent('2.0')
       const node = get(cascade, '2.0.2.0')
 
-      Register.register({ div: TestComp, [node[1].id]: TestComp2 })
+      Register.registerComponents({ div: TestComp, [node[1].id]: TestComp2 })
 
       delete catalog[ node[1].id ].altRender
       delete catalog[ node[1].id ].render
@@ -240,7 +240,7 @@ describe('/register', () => {
 
     it('should get the capitalized type component over the lowercase type component', () => {
 
-      Register.register({ Div: TestComp, div: TestComp2 })
+      Register.registerComponents({ Div: TestComp, div: TestComp2 })
 
       const parent = buildParent('2.0')
       const node = get(cascade, '2.0.2.0')
@@ -256,7 +256,7 @@ describe('/register', () => {
 
     it('should get the render component over the capitalized type component', () => {
 
-      Register.register({ Row: TestComp,  Div: TestComp2, })
+      Register.registerComponents({ Row: TestComp,  Div: TestComp2, })
 
       const parent = buildParent('0')
       const node = get(cascade, '2.0')
@@ -273,7 +273,7 @@ describe('/register', () => {
 
     it('should get the altRender component over the render component', () => {
 
-      Register.register({ Row: TestComp, Container: TestComp2 })
+      Register.registerComponents({ Row: TestComp, Container: TestComp2 })
 
       const parent = buildParent('0')
       const node = get(cascade, '2.0')

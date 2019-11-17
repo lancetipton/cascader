@@ -95,7 +95,7 @@ export const registerCustomFind = customFind => (
   isFunc(customFind) && (registry.customFind = customFind)
 )
 
-export const register = (...args) => registry.register(...args)
+export const registerComponents = (...args) => registry.register(...args)
 
 export const removeComponent = key => key && registry.unset(key)
 
