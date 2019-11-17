@@ -52,10 +52,21 @@ const renderCascade = (cascade, metadata, parent) => {
         metadata,
         buildCascadeProps(cascade, metadata, parent),
         parent
-      )
+      ) || null
 
 }
 
+/**
+ * Kicks off the cascade render
+ * <br> Ensures all needed props exist
+ * @param {Object} props - component props passed from the consumer
+ * @param {Object} props.cascade - The cascade tree render
+ * @param {Object} props.catalog - Lookup table for cascade nodes
+ * @param {Object} props.styles - Styles by size for cascade nodes
+ * @param {Object} props.identity - Maps position to and id, and visa versa
+ *
+ * @returns {React Component} - React component tree of the passed in cascade
+ */
 export const Cascader = props => {
 
   // Ensure a cascade object exists
