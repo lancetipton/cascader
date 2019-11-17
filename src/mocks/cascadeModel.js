@@ -1,5 +1,5 @@
 export const cascadeModel = {
-  content: {
+  cascade: {
     0: 'form',
     1: {
       className: `form-wrapper form`,
@@ -73,7 +73,7 @@ export const cascadeModel = {
     },
     '68a37655-3d0a-4c67-8fe7-da944b63da04': {
       id: '68a37655-3d0a-4c67-8fe7-da944b63da04',
-      pos: '2.0.2.0',
+      pos: '2.0.2.0'
     },
     'b13b2c43-39c3-49d5-bdb4-63fc4d56e069': {
       id: 'b13b2c43-39c3-49d5-bdb4-63fc4d56e069',

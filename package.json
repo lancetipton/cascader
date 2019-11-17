@@ -17,6 +17,8 @@
     "@babel/preset-react": "7.0.0",
     "babel-jest": "24.7.1",
     "jest": "24.7.1",
+    "jsutils": "git+https://github.com/lancetipton/jsutils.git",
+    "react": ">= 16.8.3",
     "rollup": "1.20.3",
     "rollup-plugin-babel": "4.3.3",
     "rollup-plugin-cleanup": "3.1.1",

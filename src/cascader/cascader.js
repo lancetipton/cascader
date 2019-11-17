@@ -1,6 +1,6 @@
 import React from 'react'
 import { isObj, isArr, eitherObj, isColl } from 'jsutils'
-import { getRegisteredComponent } from '../register'
+import { findComponent } from '../register'
 import { buildCascadeProps } from '../utils'
 
 /**
@@ -13,14 +13,15 @@ import { buildCascadeProps } from '../utils'
  * @param {Object} props - Cascade nodes props
  * @returns {React Component}
  */
-const getRenderEl = (cascade, metadata, props, parent) => (
-  React.createElement(
-    getRegisteredComponent(cascade, metadata, props, parent) || cascade[0],
+const getRenderEl = (cascade, metadata, props, parent) => {
+  const { catalog, identity } = metadata
+
+  return React.createElement(
+    findComponent(cascade, props, catalog, identity, parent),
     props,
     renderCascade(children, metadata, { cascade, parent, props })
   )
-)
-
+}
 /**
  * Recursively converts cascade to React.createElement
  * @param {Object} cascade - The nodes to be rendered
@@ -58,14 +59,14 @@ const renderCascade = (cascade, metadata, parent) => {
 export const Cascader = props => {
 
   // Ensure a cascade object exists
-  if(!isObj(props) || !isObj(props.content)){
-    console.warn(`Cascader requires a content object as a prop!`, props)
+  if(!isObj(props) || !isObj(props.cascade)){
+    console.warn(`Cascader requires a cascade object as a prop!`, props)
     return null
-  } 
+  }
 
   // Render the Cascade
   return renderCascade(
-    props.content,
+    props.cascade,
     {
       catalog: eitherObj(props.catalog, {}),
       styles: eitherObj(props.styles, {}),

@@ -16,7 +16,7 @@ React Cascade Render
 ### Example 
 ```js
 import { Cascader, registerComponents } from 'cascader'
-import { content, catalog, styles, identity } from './path/to/cascade/object'
+import { cascade, catalog, styles, identity } from './path/to/cascade/object'
 import * as Components from './components'
 
 registerComponents(Components)
@@ -25,7 +25,7 @@ export const App = () => {
 
   return  (
     <Cascader
-      content={ content }
+      cascade={ cascade }
       catalog={ catalog }
       styles={ styles }
       identity={ identity }

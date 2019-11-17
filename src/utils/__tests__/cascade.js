@@ -1,15 +1,9 @@
-import { cascadeModel } from '../../mocks'
+import { cascadeModel, buildParent, consoleOverride } from '../../mocks'
 import { get, deepClone } from 'jsutils'
 
-const { content, catalog, identity, styles } = cascadeModel
+const { cascade, catalog, identity, styles } = cascadeModel
 
 const Cascade = require('../cascade')
-
-const buildParent = pos => {
-  const parentNode = get(content, pos)
-  const parentId = get(parentNode, '1.id')
-  return { cascade: parentNode, props: { ...catalog[parentId], ...parentNode[1] }, parent: {} }
-}
 
 describe('/cascade', () => {
 
@@ -19,14 +13,14 @@ describe('/cascade', () => {
 
     it('should get the id of a node from the identity', () => {
       const parent = buildParent('2.0')
-      const node = get(content, '2.0.2.0')
+      const node = get(cascade, '2.0.2.0')
 
       expect(Cascade.getIdentityId(node, identity, parent) === get(node, '1.id')).toBe(true)
 
     })
 
     it('should return undefined when the parent is not an object', () => {
-      const node = get(content, '2.0.2.0')
+      const node = get(cascade, '2.0.2.0')
 
       expect(Cascade.getIdentityId(node, identity, null)).toBe(undefined)
 
@@ -41,50 +35,50 @@ describe('/cascade', () => {
 
 
     it('should call console.warn when parent.cascade is not an object', () => {
-      const oldWarn = console.warn
-      console.warn = jest.fn()
+      
+      const reset = consoleOverride('warn')
       
       const parent = buildParent('2.0')
       parent.cascade = 'Not AN Object'
 
-      const node = get(content, '2.0.2.0')
+      const node = get(cascade, '2.0.2.0')
       Cascade.getIdentityId(node, identity, parent)
 
       expect(console.warn).toHaveBeenCalled()
 
-      console.warn = oldWarn
+      reset()
 
     })
 
     it('should call console.warn when parent.props.pos does not exist', () => {
-      const oldWarn = console.warn
-      console.warn = jest.fn()
+      
+      const reset = consoleOverride('warn')
       
       const parent = buildParent('2.0')
       delete parent.props.pos
 
-      const node = get(content, '2.0.2.0')
+      const node = get(cascade, '2.0.2.0')
       Cascade.getIdentityId(node, identity, parent)
 
       expect(console.warn).toHaveBeenCalled()
 
-      console.warn = oldWarn
+      reset()
 
     })
 
     it('should call console.warn when parent.props.pos is not a string', () => {
-      const oldWarn = console.warn
-      console.warn = jest.fn()
+      
+      const reset = consoleOverride('warn')
       
       const parent = buildParent('2.0')
       parent.props.pos = 123456
 
-      const node = get(content, '2.0.2.0')
+      const node = get(cascade, '2.0.2.0')
       Cascade.getIdentityId(node, identity, parent)
 
       expect(console.warn).toHaveBeenCalled()
 
-      console.warn = oldWarn
+      reset()
 
     })
 
@@ -96,7 +90,7 @@ describe('/cascade', () => {
       
       const catalogCopy = deepClone(catalog)
       const parent = buildParent('2.0')
-      const node = get(content, '2.0.2.0')
+      const node = get(cascade, '2.0.2.0')
       node[1].inlineTest = `INLINE PROP`
       catalogCopy[ node[1].id ].catalogTest = `CATALOG PROP`
       const builtProps = Cascade.buildCascadeProps(node, { identity, catalog: catalogCopy }, parent)
@@ -110,7 +104,7 @@ describe('/cascade', () => {
 
       const catalogCopy = deepClone(catalog)
       const parent = buildParent('2.0')
-      const node = deepClone(get(content, '2.0.2.0'))
+      const node = deepClone(get(cascade, '2.0.2.0'))
       node[1].inlineTest = `INLINE PROP`
       catalogCopy[ node[1].id ].catalogTest = `CATALOG PROP`
       parent.props.children = { [ node[1].id ]: { parentTest: `PARENT PROP` } }
@@ -128,7 +122,7 @@ describe('/cascade', () => {
 
       const catalogCopy = deepClone(catalog)
       const parent = buildParent('2.0')
-      const node = deepClone(get(content, '2.0.2.0'))
+      const node = deepClone(get(cascade, '2.0.2.0'))
       catalogCopy[ node[1].id ].overRideTest = `CATALOG PROP`
       parent.props.children = { [ node[1].id ]: { overRideTest: `PARENT PROP` } }
       
@@ -143,7 +137,7 @@ describe('/cascade', () => {
 
       const catalogCopy = deepClone(catalog)
       const parent = buildParent('2.0')
-      const node = deepClone(get(content, '2.0.2.0'))
+      const node = deepClone(get(cascade, '2.0.2.0'))
       node[1].overRideTest = `INLINE PROP`
       catalogCopy[ node[1].id ].overRideTest = `CATALOG PROP`
 
@@ -157,7 +151,7 @@ describe('/cascade', () => {
 
       const catalogCopy = deepClone(catalog)
       const parent = buildParent('2.0')
-      const node = deepClone(get(content, '2.0.2.0'))
+      const node = deepClone(get(cascade, '2.0.2.0'))
       node[1].overRideTest = `INLINE PROP`
       catalogCopy[ node[1].id ].overRideTest = `CATALOG PROP`
       parent.props.children = { [ node[1].id ]: { overRideTest: `PARENT PROP` } }
@@ -172,7 +166,7 @@ describe('/cascade', () => {
     it('should return the inlineProps when no id can be found', () => {
 
       const parent = buildParent('2.0')
-      const node = deepClone(get(content, '2.0.2.0'))
+      const node = deepClone(get(cascade, '2.0.2.0'))
       const nodeId = node[1].id
       const identityCopy = deepClone(identity)
       const nodePos = catalog[nodeId].pos
@@ -193,7 +187,7 @@ describe('/cascade', () => {
 
     it('should return the id when is passed as the last argument', () => {
 
-      const node = get(content, '2.0.2.0')
+      const node = get(cascade, '2.0.2.0')
 
       expect(Cascade.getCascadeId(null, null, node[1].id))
 
@@ -241,7 +235,7 @@ describe('/cascade', () => {
     it('should return the id when the inlineProps', () => {
 
       const parent = buildParent('2.0')
-      const node = get(content, '2.0.2.0')
+      const node = get(cascade, '2.0.2.0')
 
       expect(Cascade.findCascadeId(node))
 
@@ -251,7 +245,7 @@ describe('/cascade', () => {
     it('should return the id when no inlineProps, but has catalogProps', () => {
 
       const parent = buildParent('2.0')
-      const node = get(content, '2.0.2.0')
+      const node = get(cascade, '2.0.2.0')
       const catalogProps = catalog[ node[1].id ]
 
       expect(Cascade.findCascadeId({}, catalogProps ))
@@ -261,7 +255,7 @@ describe('/cascade', () => {
     it('should return the id when no inlineProps, but has catalogProps', () => {
 
       const parent = buildParent('2.0')
-      const node = get(content, '2.0.2.0')
+      const node = get(cascade, '2.0.2.0')
       const catalogProps = catalog[ node[1].id ]
 
       expect(Cascade.findCascadeId({}, catalogProps ))
@@ -273,7 +267,7 @@ describe('/cascade', () => {
 
       const catalogCopy = deepClone(catalog)
       const parent = buildParent('2.0')
-      const node = deepClone(get(content, '2.0.2.0'))
+      const node = deepClone(get(cascade, '2.0.2.0'))
       const nodeId = node[1].id
       const identityCopy = deepClone(identity)
       const nodePos = catalogCopy[nodeId].pos
