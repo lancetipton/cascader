@@ -2,6 +2,9 @@ import { isObj, get } from 'jsutils'
 import React from 'react'
 import { getAltRender, findCascadeId } from '../utils'
 
+// Helper to known then running tests
+const isTest = process.env.NODE_ENV === 'test'
+
 // Cache to hold registered components
 let ComponentCache = {}
 
@@ -12,13 +15,16 @@ let ComponentCache = {}
  * @returns {void}
  */
 export const register = compList => {
-  if(isObj(compList))
+  if(!isObj(compList))
     return console.warn(`Cascade register method only accepts an object as it's first argument!`)
 
   ComponentCache = {
     ...ComponentCache,
     ...compList,
   }
+
+  if(isTest) return ComponentCache
+
 }
 
 /**

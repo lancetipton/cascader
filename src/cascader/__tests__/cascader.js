@@ -5,7 +5,7 @@ describe('/cascader', () => {
 
   beforeEach(() => jest.resetAllMocks())
 
-  it('', () => {
+  it('should render the passed in cascade model', () => {
 
   })
 
