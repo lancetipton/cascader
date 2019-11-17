@@ -30,7 +30,7 @@ export const register = compList => {
  * @param {Object} metadata.identity - Maps position to and id, and visa versa
  * @param {Object} props - properties of the cascade node
  * @param {Object} parent - Cascade nodes parent data
- * @param {Object} parent.node - Parent cascade node
+ * @param {Object} parent.cascade - Parent cascade node
  * @param {Object} parent.parent - Parent object of the parent cascade node
  * @param {Object} parent.props - Props object of the parent cascade node
  *
@@ -39,7 +39,7 @@ export const register = compList => {
 export const getRegisteredComponent = (cascade, { catalog, identity }, props, parent) => {
 
   // Find the Id of the cascade node
-  const cascadeId = findCascadeId(cascade, identity, props, parent)
+  const cascadeId = findCascadeId(cascade, props, identity, parent)
     
   // Use cascade Id to get the render key of the cascade node
   const cascadeKey = cascadeId && getAltRender(catalog, cascadeId)

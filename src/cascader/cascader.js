@@ -17,7 +17,7 @@ const getRenderEl = (cascade, metadata, props, parent) => (
   React.createElement(
     getRegisteredComponent(cascade, metadata, props, parent) || cascade[0],
     props,
-    renderCascade(children, metadata, { node: cascade, parent, props })
+    renderCascade(children, metadata, { cascade, parent, props })
   )
 )
 
@@ -29,7 +29,7 @@ const getRenderEl = (cascade, metadata, props, parent) => (
  * @param {Object} metadata.styles - Styles by size for cascade nodes
  * @param {Object} metadata.identity - Maps position to and id, and visa versa
  * @param {Object} parent - Cascade nodes parent data
- * @param {Object} parent.node - Parent cascade node
+ * @param {Object} parent.cascade - Parent cascade node
  * @param {Object} parent.parent - Parent object of the parent cascade node
  * @param {Object} parent.props - Props object of the parent cascade node
  *
