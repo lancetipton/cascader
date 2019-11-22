@@ -5,29 +5,35 @@ import commonjs from 'rollup-plugin-commonjs'
 import cleanup from 'rollup-plugin-cleanup'
 import sourcemaps from 'rollup-plugin-sourcemaps';
 
-const outputFile = "./build/index.js"
+const outputFile = "./build/index"
 
 export default {
   input: "./src/index.js",
-  output: {
-    file: outputFile,
-    format: "cjs"
-  },
+  output: [
+    {
+      file: `${outputFile}.es.js`,
+      format: "es",
+    },
+    {
+      file: `${outputFile}.cjs.js`,
+      format: "cjs",
+    },
+  ],
+  external: ['react', 'react-native', 'jsutils' ],
   watch: {
     clearScreen: false
   },
-  external: ['react', 'jsutils' ],
   plugins: [
     replace({
       "process.env.NODE_ENV": JSON.stringify('production')
     }),
-    babel({
-      exclude: "node_modules/**",
-      presets: ['@babel/env', '@babel/preset-react']
+    resolve(),
+    babel({ 
+        exclude: 'node_modules/**',
+        presets: ['@babel/env', '@babel/preset-react']
     }),
     sourcemaps(),
-    resolve(),
+    commonjs(),
     cleanup(),
-    commonjs()
   ],
 }

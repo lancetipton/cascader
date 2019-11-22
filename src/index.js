@@ -1,7 +1,7 @@
 import { Cascader } from './cascader'
 import { registerComponents, registerCustomFind } from './register'
 
-export default {
+export {
   Cascader,
   registerComponents,
   registerCustomFind
