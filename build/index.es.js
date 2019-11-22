@@ -90,7 +90,7 @@ var buildCascadeProps = function buildCascadeProps(cascade, metadata, parent) {
       catalog = metadata.catalog;
   var cascadeId = findCascadeId(cascade, inlineProps, identity, parent);
   var cascadeProps = !cascadeId ? inlineProps : deepMerge(get(parent, ['props', 'children', cascadeId]), catalog[cascadeId], inlineProps);
-  cascadeProps.key = cascadeProps.key || cascadeProps.id || cascadeProps.pos;
+  cascadeProps.key = cascadeProps.key || cascadeProps.id || cascadeProps.pos || metadata.pos;
   return cascadeProps;
 };
 var getCascadeId = function getCascadeId(cascade, props, id) {
@@ -164,8 +164,10 @@ var getRenderEl = function getRenderEl(cascade, metadata, props, parent) {
 var renderCascade = function renderCascade(cascade, metadata, parent) {
   if (!isColl(cascade)) return cascade;
   if (cascade[0] === 'CASCADE_LOADING') return null;
-  return isArr(cascade) ? cascade.map(function (child) {
-    return renderCascade(child, metadata, parent);
+  return isArr(cascade) ? cascade.map(function (child, index) {
+    return renderCascade(child, _objectSpread2({}, metadata, {
+      pos: "".concat(metadata.pos, ".2.").concat(index)
+    }), parent);
   }) : cascade[0] && getRenderEl(cascade, metadata, buildCascadeProps(cascade, metadata, parent), parent) || null;
 };
 var Cascader = function Cascader(props) {
@@ -176,7 +178,8 @@ var Cascader = function Cascader(props) {
   return renderCascade(props.cascade, {
     catalog: eitherObj(props.catalog, {}),
     styles: props.styles,
-    identity: props.identity
+    identity: props.identity,
+    pos: 0
   }, _objectSpread2({}, eitherObj(props.parent, {}), {
     CASCADE_ROOT: true
   }));

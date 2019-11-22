@@ -71,7 +71,8 @@ export const buildCascadeProps = (cascade, metadata, parent) => {
       )
 
   // Ensure a key is added to the props, use either the ID or the pos
-  cascadeProps.key = cascadeProps.key || cascadeProps.id || cascadeProps.pos
+  // If not other key can be used, use the pos from the metadata
+  cascadeProps.key = cascadeProps.key || cascadeProps.id || cascadeProps.pos || metadata.pos
   
   return cascadeProps
 }

@@ -22,6 +22,7 @@ const getRenderEl = (cascade, metadata, props, parent) => {
     renderCascade(cascade[2], metadata, { cascade, parent, props })
   )
 }
+
 /**
  * Recursively converts cascade to React.createElement
  * @param {Object} cascade - The nodes to be rendered
@@ -43,10 +44,14 @@ const renderCascade = (cascade, metadata, parent) => {
   
   // If first element is just Loading, reutrn null
   if (cascade[0] === 'CASCADE_LOADING') return null
-  
+
   // Get the element to be rendered, and return it
   return isArr(cascade)
-    ? cascade.map(child => renderCascade(child, metadata, parent))
+    ? cascade.map((child, index) => renderCascade(
+        child,
+        { ...metadata, pos: `${metadata.pos}.2.${index}` },
+        parent
+      ))
     : cascade[0] && getRenderEl(
         cascade,
         metadata,
@@ -82,6 +87,7 @@ export const Cascader = props => {
       catalog: eitherObj(props.catalog, {}),
       styles: props.styles,
       identity: props.identity,
+      pos: 0,
     },
     { ...eitherObj(props.parent, {}), CASCADE_ROOT: true }
   )
