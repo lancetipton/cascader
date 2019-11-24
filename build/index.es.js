@@ -1,26 +1,10 @@
 import React, { useEffect } from 'react';
-import { isStr, isObj, get, deepMerge, isFunc, capitalize, isColl, checkCall, eitherObj, isArr } from 'jsutils';
+import { get, isStr, isObj, deepMerge, isFunc, capitalize, isColl, checkCall, eitherObj, isArr } from 'jsutils';
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
   }
-}
-
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
 }
 
 function _defineProperty(obj, key, value) {
@@ -74,8 +58,7 @@ function _objectSpread2(target) {
 
 var buildCascadeProps = function buildCascadeProps(cascade, metadata, parent) {
   var inlineProps = get(cascade, ['1'], {});
-  var identity = metadata.identity,
-      catalog = metadata.catalog;
+  var catalog = metadata.catalog;
   var cascadeId = getCascadeId(cascade, inlineProps);
   var cascadeProps = !cascadeId ? inlineProps : deepMerge(get(parent, ['props', 'children', cascadeId]), catalog[cascadeId], inlineProps);
   cascadeProps.key = cascadeProps.key || cascadeProps.id || cascadeProps.pos || metadata.pos;
@@ -104,47 +87,38 @@ var getAltRender = function getAltRender(catalog, id) {
   return isObj(catalogProps) && (catalogProps.altRender || catalogProps.render);
 };
 
-var Registry =
-function () {
-  function Registry() {
-    _classCallCheck(this, Registry);
-    _defineProperty(this, "components", {});
-    _defineProperty(this, "cached", {});
-  }
-  _createClass(Registry, [{
-    key: "register",
-    value: function register(compList) {
-      if (!isObj(compList)) return console.warn("Cascade register method only accepts an object as it's first argument!");
-      this.components = _objectSpread2({}, this.components, {}, compList);
-    }
-  }, {
-    key: "unset",
-    value: function unset(key) {
-      key ? delete this.components[key] : this.components = {};
-    }
-  }, {
-    key: "get",
-    value: function get(key) {
-      return key && this.components[key] || this.components;
-    }
-  }, {
-    key: "find",
-    value: function find(cascade, props, catalog, parent) {
-      var cascadeId = getCascadeId(cascade, props);
-      var cascadeKey = cascadeId && getAltRender(catalog, cascadeId);
-      var type = cascade[0];
-      return this.components[cascadeKey] || this.components[capitalize(type)] || this.components[type] || this.components[cascadeId] || type;
-    }
-  }]);
-  return Registry;
-}();
+var Registry = function Registry() {
+  var _this = this;
+  _classCallCheck(this, Registry);
+  _defineProperty(this, "components", {});
+  _defineProperty(this, "cached", {});
+  _defineProperty(this, "register", function (compList) {
+    if (!isObj(compList)) return console.warn("Cascade register method only accepts an object as it's first argument!");
+    _this.components = _objectSpread2({}, _this.components, {}, compList);
+  });
+  _defineProperty(this, "unset", function (key) {
+    return key ? delete _this.components[key] : _this.components = {};
+  });
+  _defineProperty(this, "get", function (key) {
+    return key ? _this.components[key] : _this.components;
+  });
+  _defineProperty(this, "find", function (cascade, props, catalog) {
+    if (!cascade) return console.warn("Find requires a cascade object as it's first argument", cascade);
+    var cascadeId = getCascadeId(cascade, props);
+    var cascadeKey = cascadeId && getAltRender(catalog, cascadeId);
+    var type = cascade[0];
+    return _this.components[cascadeKey] || _this.components[capitalize(type)] || _this.components[type] || _this.components[cascadeId] || type;
+  });
+  _defineProperty(this, "clear", function () {
+    _this.cached = {};
+    _this.unset();
+  });
+};
 var registry = new Registry();
 var registerCustomFind = function registerCustomFind(customFind) {
-  return isFunc(customFind) && (registry.customFind = customFind);
+  return !customFind ? registry.customFind = undefined : isFunc(customFind) && (registry.customFind = customFind.bind(registry));
 };
-var registerComponents = function registerComponents() {
-  return registry.register.apply(registry, arguments);
-};
+var registerComponents = registry.register;
 var findComponent = function findComponent() {
   return isFunc(registry.customFind) ? registry.customFind.apply(registry, arguments) : registry.find.apply(registry, arguments);
 };
@@ -153,27 +127,31 @@ var getCached = function getCached(id) {
 };
 var addCached = function addCached(id) {
   var comp = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+  if (!isStr(id)) return console.warn("addCached requires an Id as a string for the first arguemnt!", id);
+  if (!isFunc(comp)) return console.warn("addCached requires a function component as the second argument!", comp);
   registry.cached[id] = comp;
   return registry.cached[id];
 };
 
-var getRenderEl = function getRenderEl(cascade, metadata, props, parent) {
+var getComponent = function getComponent(cascade, metadata, props, parent) {
   var catalog = metadata.catalog;
-  var FoundComp = findComponent(cascade, props, catalog, parent);
-  if (props.id) {
-    isFunc(FoundComp) && addCached(props.id, FoundComp);
-    updateCatalogProps(eitherObj(catalog[props.id], {}), props, metadata);
-  }
-  return React.createElement(FoundComp, props, renderCascade(cascade[2], metadata, {
+  var id = props.id;
+  var CachedComp = id && getCached(id);
+  var FoundComp = CachedComp || findComponent(cascade, props, catalog, parent);
+  id && !CachedComp && isFunc(FoundComp) && addCached(id, FoundComp);
+  id && updateCatalogProps(eitherObj(catalog[id], {}), props, metadata);
+  return FoundComp;
+};
+var getRenderEl = function getRenderEl(cascade, metadata, props, parent) {
+  return React.createElement(getComponent(cascade, metadata, props, parent), props, renderCascade(cascade[2], metadata, {
     cascade: cascade,
     parent: parent,
     props: props
   }));
 };
 var buildCascadeNode = function buildCascadeNode(cascade, metadata, parent) {
-  if (!cascade || !cascade[0]) return null;
-  var props = buildCascadeProps(cascade, metadata, parent) || {};
-  return props.id && getCached(props.id) || getRenderEl(cascade, metadata, props, parent);
+  return !cascade || !cascade[0] ? null : getRenderEl(cascade, metadata,
+  buildCascadeProps(cascade, metadata, parent) || {}, parent);
 };
 var loopCascadeArray = function loopCascadeArray(cascade, metadata, parent) {
   var curPos = metadata.pos;

@@ -16,7 +16,7 @@ const getComponent = (cascade, metadata, props, parent) => {
 
   // Cache the found component which should make next render faster
   // Add cached component if there's no cached component and a function component was found
-  !CachedComp && isFunc(FoundComp) && addCached(id, FoundComp)
+  id && !CachedComp && isFunc(FoundComp) && addCached(id, FoundComp)
   
   // Update the catalog with update props when an id exists
   id && updateCatalogProps(eitherObj(catalog[id], {}), props, metadata)
