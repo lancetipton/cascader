@@ -1,14 +1,14 @@
 import { cascadeModel, consoleOverride } from '../../mocks'
 import { get } from 'jsutils'
 
-const { registerComponents, removeComponents } = require('../../register')
+const { registerComponents, removeComponents, getComponents, clear } = require('../../register')
 const Cascader = require('../cascader').Cascader
 
 describe('/cascader', () => {
 
   beforeEach(() => {
     jest.resetAllMocks()
-    removeComponents()
+    clear()
   })
 
   it('should render the passed in cascade model', () => {

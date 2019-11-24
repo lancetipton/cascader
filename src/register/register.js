@@ -1,11 +1,14 @@
 import React from 'react'
-import { isObj, get, capitalize, isFunc } from 'jsutils'
+import { isObj, get, capitalize, isFunc, isStr } from 'jsutils'
 import { getAltRender, getCascadeId } from '../utils'
 
 // Helper to known then running tests
 const isTest = process.env.NODE_ENV === 'test'
 
-
+// Eventually want to have multiple registries, which can be referenced by id
+// Which why this is a class
+// Then we could create multiple Registry instance
+// This would allow different registered components for different cascade instances
 class Registry {
 
   // Cache to hold cache items
@@ -19,7 +22,7 @@ class Registry {
   *
   * @returns {void}
   */
-  register(compList){
+  register = compList => {
     if(!isObj(compList))
       return console.warn(`Cascade register method only accepts an object as it's first argument!`)
 
@@ -35,7 +38,7 @@ class Registry {
    *
    * @returns {void}
    */
-  unset(key) { key ? (delete this.components[key]) : (this.components = {}) }
+  unset = key => (key ? (delete this.components[key]) : (this.components = {}))
 
   /**
    * Gets a single registered component or all components
@@ -44,7 +47,7 @@ class Registry {
    *
    * @returns {React Component} - Matching registered component || All components
    */
-  get(key){ return (key && this.components[key] || this.components) }
+  get = key => (key ? this.components[key] : this.components)
 
   /**
   * Finds a registered React Component that matches the cascade node
@@ -61,7 +64,11 @@ class Registry {
   *
   * @returns {React Component} - Matching registered component
   */
-  find(cascade, props, catalog){
+  find = (cascade, props, catalog) => {
+
+    // If not cascade just return
+    if(!cascade)
+      return console.warn(`Find requires a cascade object as it's first argument`, cascade)
 
     // Find the Id of the cascade node
     const cascadeId = getCascadeId(cascade, props)
@@ -80,6 +87,17 @@ class Registry {
       type
   }
 
+  /**
+  * Clears out cache and components
+  * @memberof Registry
+  *
+  * @returns {void}
+  */
+  clear = () => {
+    this.cached = {}
+    this.unset()
+  }
+
 }
 
 const registry = new Registry()
@@ -90,28 +108,105 @@ const registry = new Registry()
  * @param {function} customFind - custom function to override the default find function
  */
 export const registerCustomFind = customFind => (
-  isFunc(customFind) && (registry.customFind = customFind)
+  !customFind
+    ? (registry.customFind = undefined)
+    : ( isFunc(customFind) && (registry.customFind = customFind.bind(registry)) )
 )
 
-export const registerComponents = (...args) => registry.register(...args)
+/**
+ * Register a group of components to be searched when rendering
+ * @param {Object} compList - Group of React Components
+ *
+ * @returns {void}
+ */
+export const registerComponents = registry.register
 
-export const removeComponent = key => key && registry.unset(key)
+/**
+ * Removes a single component from the component registry
+ * @param {string} key - key of component to remove
+ *
+ * @returns {void}
+ */
+export const removeComponent = key => isStr(key) && registry.unset(key)
 
+/**
+ * Removes all registered components
+ *
+ * @returns {void}
+ */
 export const removeComponents = () => registry.unset()
 
-export const getComponent = key => key && registry.get(key)
+/**
+ * Gets a single registered component based on the passed in key
+ * @param {string} key - key of a registered component
+ *
+ * @returns {React Component} - Matching registered component
+ */
+export const getComponent = key => isStr(key) && registry.get(key)
 
+/**
+ * Gets all registered components
+ *
+ * @returns {Object} - Key value pair of registered components
+ */
 export const getComponents = () => registry.get()
 
+/**
+ * Searches for a component in the registered components
+ * <br> If a customFind method is set it will call that method instead
+ * @returns {Object} - Key value pair of registered components
+ */
 export const findComponent = (...args) => (
   isFunc(registry.customFind)
     ? registry.customFind(...args)
     : registry.find(...args)
 )
 
+/**
+ * Gets a cached component based on the passed in id
+ * @param {string} id - id of a registered component
+ *
+ * @returns {React Component} - Matching cached component
+ */
 export const getCached = id => registry.cached[id]
 
+/**
+ * Adds a cached component based on the passed in id
+ * @param {string} id - id to cache the component under
+ *
+ * @returns {React Component} - Matching cached component
+ */
 export const addCached = (id, comp=null) => {
+  if(!isStr(id))
+    return console.warn(`addCached requires an Id as a string for the first arguemnt!`, id)
+  
+  if(!isFunc(comp))
+    return console.warn(`addCached requires a function component as the second argument!`, comp)
+
   registry.cached[id] = comp
+
   return registry.cached[id]
 }
+
+/**
+ * Clears out cached components based on passed in id
+ * <br> If no id, it will remove all cached components
+ * <br> If an id is passed, it will remove only the matching cached item
+ * @param {string} id - Id of the cached component to remove
+ *
+ * @returns {void}
+ */
+export const clearCache = (id) => {
+  // If no id, clear all the cache
+  if(!id) return registry.cached = {}
+  
+  // If an id is passed, remove just the matching cached component
+  delete registry.cached[id]
+}
+
+/**
+ * Clears out cache and components
+ *
+ * @returns {void}
+ */
+export const clear = registry.clear

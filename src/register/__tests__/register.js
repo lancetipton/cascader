@@ -1,5 +1,6 @@
 import { cascadeModel, buildParent } from '../../mocks'
 import { get, deepClone } from 'jsutils'
+import { Cascader } from '../../cascader'
 
 const { styles } = cascadeModel
 let cascade
@@ -302,6 +303,180 @@ describe('/register', () => {
 
     })
 
+    it('should unregister the customFind function when passing a falsy value', () => {
+
+      const customFindMethod = jest.fn()
+      Register.registerCustomFind(customFindMethod)
+
+      Register.findComponent()
+
+      expect(customFindMethod).toHaveBeenCalled()
+
+      customFindMethod.mockReset()
+      Register.registerCustomFind(null)
+      Register.registerComponents({ Row: TestComp, Container: TestComp2 })
+      const parent = buildParent('0')
+      const node = get(cascade, '2.0')
+      catalog[ node[1].id ].render = 'Container'
+
+      Register.findComponent(node, node[1], catalog, parent)
+
+      expect(customFindMethod).not.toHaveBeenCalled()
+
+    })
+
   })
+
+  describe('getCached', () => {
+
+    beforeEach(() => Register.clearCache())
+
+    it('should return a cached component when a valid id is passed in', () => {
+
+      Register.registerComponents({ Row: TestComp, Container: TestComp2 })
+      const rendered = Cascader(cascadeModel)
+      const cachedComp = Register.getCached('3af353c4-64f9-4edf-8324-bcbdf37d88cc')
+
+      expect(cachedComp).toBe(TestComp)
+
+    })
+
+    it('should NOT return a cached component when an invalid id is passed in', () => {
+
+      Register.registerComponents({ Row: TestComp, Container: TestComp2 })
+      const rendered = Cascader(cascadeModel)
+      const cachedComp = Register.getCached('')
+      const cachedComp2 = Register.getCached(1234)
+      const cachedComp3 = Register.getCached({})
+
+      expect(cachedComp).toBe(undefined)
+      expect(cachedComp2).toBe(undefined)
+      expect(cachedComp3).toBe(undefined)
+
+    })
+
+  })
+
+  describe('addCached', () => {
+    
+    beforeEach(() => Register.clearCache())
+    
+    it('should add a component to the cached components', () => {
+
+      const cachedId = 'test-add'
+
+      expect(Register.getCached(cachedId)).toBe(undefined)
+      
+      Register.addCached(cachedId, TestComp)
+      const cachedComp = Register.getCached(cachedId)
+
+      expect(cachedComp).toBe(TestComp)
+
+    })
+
+    it('should call console.warn when an invalid id is passed in', () => {
+
+      const oldWarn = console.warn
+      console.warn = jest.fn()
+
+      Register.addCached(null)
+      Register.addCached(123)
+      Register.addCached({})
+      Register.addCached([])
+      Register.addCached(() => {})
+      Register.addCached('1234', () => {})
+
+      expect(console.warn).toHaveBeenCalledTimes(5)
+
+      console.warn = oldWarn
+
+    })
+
+    it('should call console.warn when an invalid component is passed in', () => {
+
+      const oldWarn = console.warn
+      console.warn = jest.fn()
+
+      Register.addCached('1234', null)
+      Register.addCached('1234', {})
+      Register.addCached('1234', [])
+      Register.addCached('1234', 1)
+      Register.addCached('1234', '1')
+      Register.addCached('1234', () => {})
+
+      expect(console.warn).toHaveBeenCalledTimes(5)
+
+      console.warn = oldWarn
+
+    })
+
+  })
+
+  describe('clearCache', () => {
+
+    beforeEach(() => Register.clearCache())
+
+    it('should clear only the component matching the passed in ID', () => {
+
+      const cachedId = 'test-add'
+      const cachedId2 = 'test-add2'
+      Register.addCached(cachedId, TestComp)
+      Register.addCached(cachedId2, TestComp2)
+      const cachedComp = Register.getCached(cachedId)
+      const cachedComp2 = Register.getCached(cachedId2)
+
+      expect(cachedComp).toBe(TestComp)
+      expect(cachedComp2).toBe(TestComp2)
+
+      Register.clearCache(cachedId)
+
+      expect(Register.getCached(cachedId)).toBe(undefined)
+      expect(Register.getCached(cachedId2)).toBe(TestComp2)
+
+    })
+
+    it('should clear all cached component when no id is passed in', () => {
+
+      const cachedId = 'test-add'
+      const cachedId2 = 'test-add2'
+      Register.addCached(cachedId, TestComp)
+      Register.addCached(cachedId2, TestComp2)
+      const cachedComp = Register.getCached(cachedId)
+      const cachedComp2 = Register.getCached(cachedId2)
+
+      expect(cachedComp).toBe(TestComp)
+      expect(cachedComp2).toBe(TestComp2)
+
+      Register.clearCache()
+
+      expect(Register.getCached(cachedId)).toBe(undefined)
+      expect(Register.getCached(cachedId2)).toBe(undefined)
+
+    })
+
+  })
+
+  
+  describe('clear', () => {
+
+    it('should clear all component and cache', () => {
+
+      Register.registerComponents({ Row: TestComp, Container: TestComp2 })
+      Cascader(cascadeModel)
+
+      expect(Register.getCached('3af353c4-64f9-4edf-8324-bcbdf37d88cc')).toBe(TestComp)
+      expect(Register.getComponent('Row')).toBe(TestComp)
+      expect(Register.getComponent('Container')).toBe(TestComp2)
+
+      Register.clear()
+
+      expect(Register.getCached('3af353c4-64f9-4edf-8324-bcbdf37d88cc')).toBe(undefined)
+      expect(Register.getComponent('Row')).toBe(undefined)
+      expect(Register.getComponent('Container')).toBe(undefined)
+
+    })
+
+  })
+
 
 })
