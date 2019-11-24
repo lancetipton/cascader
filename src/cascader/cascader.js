@@ -3,6 +3,28 @@ import { isObj, isArr, isFunc, isStr, eitherObj, isColl, get, checkCall, deepClo
 import { findComponent, getCached, addCached } from '../register'
 import { buildCascadeProps, updateCatalogProps } from '../utils'
 
+
+const getComponent = (cascade, metadata, props, parent) => {
+  const { catalog } = metadata
+  const { id } = props
+
+  // Check if the comp is cached
+  const CachedComp = id && getCached(id)
+
+  // If no cached comp, Try to find it
+  const FoundComp = CachedComp || findComponent(cascade, props, catalog, parent)
+
+  // Cache the found component which should make next render faster
+  // Add cached component if there's an ID and a function component if found
+  CachedComp && isFunc(FoundComp) && addCached(id, FoundComp)
+  
+  // Update the catalog with update props when an id exists
+  id && updateCatalogProps(eitherObj(catalog[id], {}), props, metadata)
+
+  // Return the found component
+  return FoundComp
+}
+
 /**
  * Creates a React component by calling the React.createElement method
  * @param {Object} cascade - The nodes to be rendered
@@ -13,23 +35,10 @@ import { buildCascadeProps, updateCatalogProps } from '../utils'
  * @returns {React Component}
  */
 const getRenderEl = (cascade, metadata, props, parent) => {
-  const { catalog } = metadata
-
-  // Try to find the component
-  const FoundComp = findComponent(cascade, props, catalog, parent)
-  
-  // Add cached component if there's an ID and a function component if found
-  if(props.id){
-    // Cache the found component which should make next render fater
-    isFunc(FoundComp) && addCached(props.id, FoundComp)
-
-    // Update the catalogProps if needed
-    updateCatalogProps(eitherObj(catalog[props.id], {}), props, metadata)
-  }
 
   // Create the react version of the element
   return React.createElement(
-    FoundComp,
+    getComponent(cascade, metadata, props, parent),
     props,
     renderCascade(cascade[2], metadata, { cascade, parent, props })
   )
@@ -44,19 +53,16 @@ const getRenderEl = (cascade, metadata, props, parent) => {
  * @return {Object} React vDom element
  */
 const buildCascadeNode = (cascade, metadata, parent) => {
-
   // If no cascade, or not type, return null
-  if(!cascade || !cascade[0]) return null
-
-  // Build the props for the cascade node
-  const props = buildCascadeProps(cascade, metadata, parent) || {}
-
-  return props.id && getCached(props.id) || getRenderEl(
-    cascade,
-    metadata,
-    props,
-    parent
-  )
+  return !cascade || !cascade[0]
+    ? null
+    : getRenderEl(
+      cascade,
+      metadata,
+      // Build the props for the cascade node
+      buildCascadeProps(cascade, metadata, parent) || {},
+      parent
+    )
 }
 
 /**

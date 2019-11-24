@@ -13,8 +13,8 @@ export const buildCascadeProps = (cascade, metadata, parent) => {
   // Get the props directly on the cascade node
   const inlineProps = get(cascade, [ '1' ], {})
 
-  // Get the identity and catalog from finding the cascade node metadata
-  const { identity, catalog } = metadata
+  // Get the catalog from finding the cascade node metadata
+  const { catalog } = metadata
 
   // Get the id for the cascade, if no Id in the props, try to get the id from the position
   const cascadeId = getCascadeId(cascade, inlineProps)

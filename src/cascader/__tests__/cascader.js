@@ -139,7 +139,7 @@ describe('/cascader', () => {
     const altRender = get(rendered, ['props', 'children', '0' ])
     const deepAltRender = get(altRender, ['props', 'children', '1', 'props', 'children', '1' ])
     const deepCascade = get(cascadeModel.cascade, [ '2', '0', '2', '1', '2', '1' ])
-    
+
     expect(altRender['$$typeof'].toString()).toBe('Symbol(react.element)')
     expect(altRender.type).toBe(components.Row)
 

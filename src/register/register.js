@@ -50,22 +50,18 @@ class Registry {
   * Finds a registered React Component that matches the cascade node
   * <br> Looks for components in this order
   * <br> 1. altRender || render key on the catalogProps of the cascade
-  * <br> 2. node[0] (type) - The type of the passed in cascade node
-  * <br> 3. capitalize(node[0]) - The type of the passed in cascade node but capitalized
+  * <br> 2. capitalize(node[0]) - The type of the passed in cascade node but capitalized
+  * <br> 3. node[0] (type) - The type of the passed in cascade node
   * <br> 4. node[1].id (id) - The id of the passed in cascade node
   * <br> 5. If no component is found, node[0] (type) is returned
   * @memberof Registry
   * @param {Object} cascade - Node describing a UI element
   * @param {Object} props - properties of the cascade node
   * @param {Object} catalog - Lookup table for cascade nodes
-  * @param {Object} parent - Cascade nodes parent data
-  * @param {Object} parent.cascade - Parent cascade node
-  * @param {Object} parent.parent - Parent object of the parent cascade node
-  * @param {Object} parent.props - Props object of the parent cascade node
   *
   * @returns {React Component} - Matching registered component
   */
-  find(cascade, props, catalog, parent){
+  find(cascade, props, catalog){
 
     // Find the Id of the cascade node
     const cascadeId = getCascadeId(cascade, props)

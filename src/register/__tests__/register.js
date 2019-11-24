@@ -1,7 +1,7 @@
 import { cascadeModel, buildParent } from '../../mocks'
 import { get, deepClone } from 'jsutils'
 
-const { identity, styles } = cascadeModel
+const { styles } = cascadeModel
 let cascade
 let catalog
 const TestComp = () => ('I am the test component!')
@@ -138,7 +138,7 @@ describe('/register', () => {
 
       const parent = buildParent('0')
       const node = get(cascade, '2.0')
-      const RenderComp = Register.findComponent(node, node[1], catalog, identity, parent)
+      const RenderComp = Register.findComponent(node, node[1], catalog, parent)
       
       expect(RenderComp).toBe(TestComp)
 
@@ -153,7 +153,7 @@ describe('/register', () => {
       catalog[ node[1].id ].render = 'Container'
       delete catalog[ node[1].id ].altRender
 
-      const RenderComp = Register.findComponent(node, node[1], catalog, identity, parent)
+      const RenderComp = Register.findComponent(node, node[1], catalog, parent)
       
       expect(RenderComp).toBe(TestComp)
 
@@ -169,7 +169,7 @@ describe('/register', () => {
       delete catalog[ node[1].id ].altRender
       delete catalog[ node[1].id ].render
 
-      const RenderComp = Register.findComponent(node, node[1], catalog, identity, parent)
+      const RenderComp = Register.findComponent(node, node[1], catalog, parent)
       
       expect(RenderComp).toBe(TestComp)
 
@@ -185,7 +185,7 @@ describe('/register', () => {
       delete catalog[ node[1].id ].altRender
       delete catalog[ node[1].id ].render
 
-      const RenderComp = Register.findComponent(node, node[1], catalog, identity, parent)
+      const RenderComp = Register.findComponent(node, node[1], catalog, parent)
       
       expect(RenderComp).toBe(TestComp)
 
@@ -201,7 +201,7 @@ describe('/register', () => {
       delete catalog[ node[1].id ].altRender
       delete catalog[ node[1].id ].render
 
-      const RenderComp = Register.findComponent(node, node[1], catalog, identity, parent)
+      const RenderComp = Register.findComponent(node, node[1], catalog, parent)
       
       expect(RenderComp).toBe(TestComp2)
 
@@ -216,7 +216,7 @@ describe('/register', () => {
       delete catalog[ node[1].id ].altRender
       delete catalog[ node[1].id ].render
 
-      const RenderComp = Register.findComponent(node, node[1], catalog, identity, parent)
+      const RenderComp = Register.findComponent(node, node[1], catalog, parent)
       
       expect(RenderComp).toBe(node[0])
 
@@ -232,7 +232,7 @@ describe('/register', () => {
       delete catalog[ node[1].id ].altRender
       delete catalog[ node[1].id ].render
 
-      const RenderComp = Register.findComponent(node, node[1], catalog, identity, parent)
+      const RenderComp = Register.findComponent(node, node[1], catalog, parent)
       
       expect(RenderComp).toBe(TestComp)
 
@@ -248,7 +248,7 @@ describe('/register', () => {
       delete catalog[ node[1].id ].altRender
       delete catalog[ node[1].id ].render
 
-      const RenderComp = Register.findComponent(node, node[1], catalog, identity, parent)
+      const RenderComp = Register.findComponent(node, node[1], catalog, parent)
       
       expect(RenderComp).toBe(TestComp)
 
@@ -265,7 +265,7 @@ describe('/register', () => {
       delete catalog[ node[1].id ].altRender
       catalog[ node[1].id ].render = 'Row'
 
-      const RenderComp = Register.findComponent(node, node[1], catalog, identity, parent)
+      const RenderComp = Register.findComponent(node, node[1], catalog, parent)
 
       expect(RenderComp).toBe(TestComp)
 
@@ -279,7 +279,7 @@ describe('/register', () => {
       const node = get(cascade, '2.0')
       catalog[ node[1].id ].render = 'Container'
 
-      const RenderComp = Register.findComponent(node, node[1], catalog, identity, parent)
+      const RenderComp = Register.findComponent(node, node[1], catalog, parent)
       
       expect(RenderComp).toBe(TestComp)
 

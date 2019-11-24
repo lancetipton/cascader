@@ -1,7 +1,7 @@
 import { cascadeModel, consoleOverride } from '../../mocks'
 import { get } from 'jsutils'
 
-const { cascade, catalog, identity, styles } = cascadeModel
+const { cascade, catalog, styles } = cascadeModel
 
 const Catalog = require('../catalog')
 
@@ -19,8 +19,8 @@ describe('/catalog', () => {
       const nodeId = get(node, '1.id')
       const catalogProps = Catalog.getCatalogProps(catalog, nodeId)
 
-      expect(catalogProps.id === nodeId).toBe(true)
-      expect(catalogProps.pos === '2.0').toBe(true)
+      expect(catalogProps.id).toBe(nodeId)
+      expect(catalogProps.pos).toBe('0.2.0')
 
     })
 
