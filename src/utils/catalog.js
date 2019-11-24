@@ -1,7 +1,10 @@
+/** @module Utils */
+
 import { isObj, isStr, isArr } from 'jsutils'
 
 /**
  * Gets the catalog props based on an ID
+ * @function
  * @param {Object} catalog - Lookup table for cascade nodes
  * @param {string} id - ID property of the cascade node
  *
@@ -15,6 +18,7 @@ export const getCatalogProps = (catalog, id) => {
 
 /**
  * Updated the catalogProps ID and position (pos)
+ * @function
  * @param {Object} catalogProps - catalogProps of the node
  * @param {Object} props - props passed to node when rendering
  * @param {string} pos - The position of the node in the cascade when it was rendered
@@ -41,10 +45,11 @@ export const updateCatalogProps = (catalogProps, props, metadata) => {
 
 /**
  * Gets the component key
+ * @function
  * @param {Object} catalog - Lookup table for cascade nodes
  * @param {string} id - ID of the cascade node
  *
- * @returns {string} - Type of component to render ( Native ( div / img ) || custom ( React Component ) )
+ * @returns {string} - Type of component to render (div / img ) || ( React Component )
  */
 export const getAltRender = (catalog, id) => {
 

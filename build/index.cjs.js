@@ -63,13 +63,21 @@ function _objectSpread2(target) {
   return target;
 }
 
+var addEvents = function addEvents(events, type, props) {
+  return jsutils.reduceObj(events, function (evtName, addTo) {
+    addTo[type] && (props[evtName] = addTo[type]);
+    addTo[props.id] && (props[evtName] = addTo[props.id]);
+    return props;
+  });
+};
 var buildCascadeProps = function buildCascadeProps(cascade, metadata, parent) {
   var inlineProps = jsutils.get(cascade, ['1'], {});
-  var catalog = metadata.catalog;
+  var catalog = metadata.catalog,
+      events = metadata.events;
   var cascadeId = getCascadeId(cascade, inlineProps);
   var cascadeProps = !cascadeId ? inlineProps : jsutils.deepMerge(jsutils.get(parent, ['props', 'children', cascadeId]), catalog[cascadeId], inlineProps);
   cascadeProps.key = cascadeProps.key || cascadeProps.id || cascadeProps.pos || metadata.pos;
-  return cascadeProps;
+  return cascade['0'] && jsutils.isObj(events) ? addEvents(events, cascade['0'], cascadeProps) : cascadeProps;
 };
 var getCascadeId = function getCascadeId(cascade, props, id) {
   return jsutils.isStr(id) && id || jsutils.isObj(cascade) && (jsutils.get(cascade, ['1', 'id']) || !props && jsutils.get(cascade, ['id'])) || jsutils.get(props, ['id']);
@@ -102,6 +110,7 @@ var Registry = function Registry() {
   _defineProperty(this, "register", function (compList) {
     if (!jsutils.isObj(compList)) return console.warn("Cascade register method only accepts an object as it's first argument!");
     _this.components = _objectSpread2({}, _this.components, {}, compList);
+    return _this.components;
   });
   _defineProperty(this, "unset", function (key) {
     return key ? delete _this.components[key] : _this.components = {};
@@ -150,7 +159,9 @@ var getComponent = function getComponent(cascade, metadata, props, parent) {
   return FoundComp;
 };
 var getRenderEl = function getRenderEl(cascade, metadata, props, parent) {
-  return React__default.createElement(getComponent(cascade, metadata, props, parent), props, renderCascade(cascade[2], metadata, {
+  return React__default.createElement(
+  getComponent(cascade, metadata, props, parent), props,
+  renderCascade(cascade[2], metadata, {
     cascade: cascade,
     parent: parent,
     props: props
@@ -158,7 +169,7 @@ var getRenderEl = function getRenderEl(cascade, metadata, props, parent) {
 };
 var buildCascadeNode = function buildCascadeNode(cascade, metadata, parent) {
   return !cascade || !cascade[0] ? null : getRenderEl(cascade, metadata,
-  buildCascadeProps(cascade, metadata, parent) || {}, parent);
+  jsutils.eitherObj(buildCascadeProps(cascade, metadata, parent), {}), parent);
 };
 var loopCascadeArray = function loopCascadeArray(cascade, metadata, parent) {
   var curPos = metadata.pos;
@@ -181,9 +192,14 @@ var Cascader = function Cascader(props) {
     console.warn("Cascader requires the catalog prop to be an object or falsy!", props);
     return null;
   }
+  if (props.events && !jsutils.isObj(props.events)) {
+    console.warn("Cascader requires the events prop to be an object or falsy!", props);
+    return null;
+  }
   var metadata = {
     catalog: jsutils.isObj(props.catalog) && props.catalog || {},
     styles: props.styles,
+    events: props.events,
     pos: '0'
   };
   props.getCatalog && React.useEffect(function () {
