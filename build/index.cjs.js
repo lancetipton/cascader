@@ -4,7 +4,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var React = _interopDefault(require('react'));
+var React = require('react');
+var React__default = _interopDefault(React);
 var jsutils = require('jsutils');
 
 function _classCallCheck(instance, Constructor) {
@@ -78,23 +79,11 @@ function _objectSpread2(target) {
   return target;
 }
 
-var getIdentityId = function getIdentityId(cascade) {
-  var identity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var parent = arguments.length > 2 ? arguments[2] : undefined;
-  if (!jsutils.isObj(parent) || !jsutils.isObj(cascade)) return;
-  var props = parent.props,
-      parentCascade = parent.cascade,
-      CASCADE_ROOT = parent.CASCADE_ROOT;
-  var parentPos = jsutils.get(props, ['pos']);
-  if (!jsutils.isObj(parentCascade) || !jsutils.isStr(parentPos)) return !CASCADE_ROOT && console.warn("Parent cascade does not exist!", parent, cascade);
-  var pos = parentCascade[2].indexOf(cascade);
-  return jsutils.softFalsy(pos) ? identity["".concat(parentPos, ".2.").concat(pos)] : console.warn("Cascade node pos not found!", parent, cascade);
-};
 var buildCascadeProps = function buildCascadeProps(cascade, metadata, parent) {
   var inlineProps = jsutils.get(cascade, ['1'], {});
   var identity = metadata.identity,
       catalog = metadata.catalog;
-  var cascadeId = findCascadeId(cascade, inlineProps, identity, parent);
+  var cascadeId = getCascadeId(cascade, inlineProps);
   var cascadeProps = !cascadeId ? inlineProps : jsutils.deepMerge(jsutils.get(parent, ['props', 'children', cascadeId]), catalog[cascadeId], inlineProps);
   cascadeProps.key = cascadeProps.key || cascadeProps.id || cascadeProps.pos || metadata.pos;
   return cascadeProps;
@@ -102,47 +91,56 @@ var buildCascadeProps = function buildCascadeProps(cascade, metadata, parent) {
 var getCascadeId = function getCascadeId(cascade, props, id) {
   return jsutils.isStr(id) && id || jsutils.isObj(cascade) && (jsutils.get(cascade, ['1', 'id']) || !props && jsutils.get(cascade, ['id'])) || jsutils.get(props, ['id']);
 };
-var findCascadeId = function findCascadeId(cascade, props, identity, parent) {
-  return getCascadeId(cascade, props) || jsutils.isObj(identity) && getIdentityId(cascade, identity, parent);
-};
 
 var getCatalogProps = function getCatalogProps(catalog, id) {
   return !jsutils.isObj(catalog) || !jsutils.isStr(id) ? console.warn("getCatalogProps requires a catalog object, and an id!", catalog, id) : catalog[id];
+};
+var updateCatalogProps = function updateCatalogProps(catalogProps, props, metadata) {
+  var pos = metadata.pos,
+      catalog = metadata.catalog;
+  props.id && (!catalogProps.id || catalogProps.id !== props.id) && (catalogProps = _objectSpread2({}, catalogProps, {
+    id: props.id
+  }));
+  jsutils.isStr(pos) && pos !== catalogProps.pos && (catalogProps = _objectSpread2({}, catalogProps, {
+    pos: pos
+  }));
+  catalog[props.id] !== catalogProps && (metadata.catalog = _objectSpread2({}, catalog, _defineProperty({}, props.id, catalogProps)));
 };
 var getAltRender = function getAltRender(catalog, id) {
   var catalogProps = getCatalogProps(catalog, id);
   return jsutils.isObj(catalogProps) && (catalogProps.altRender || catalogProps.render);
 };
 
-var components = {};
 var Registry =
 function () {
   function Registry() {
     _classCallCheck(this, Registry);
+    _defineProperty(this, "components", {});
+    _defineProperty(this, "cached", {});
   }
   _createClass(Registry, [{
     key: "register",
     value: function register(compList) {
       if (!jsutils.isObj(compList)) return console.warn("Cascade register method only accepts an object as it's first argument!");
-      components = _objectSpread2({}, components, {}, compList);
+      this.components = _objectSpread2({}, this.components, {}, compList);
     }
   }, {
     key: "unset",
     value: function unset(key) {
-      key ? delete components[key] : components = {};
+      key ? delete this.components[key] : this.components = {};
     }
   }, {
     key: "get",
     value: function get(key) {
-      return key && components[key] || components;
+      return key && this.components[key] || this.components;
     }
   }, {
     key: "find",
-    value: function find(cascade, props, catalog, identity, parent) {
-      var cascadeId = !jsutils.isObj(identity) || !jsutils.isObj(parent) ? getCascadeId(cascade, props) : findCascadeId(cascade, props, identity, parent);
+    value: function find(cascade, props, catalog, parent) {
+      var cascadeId = getCascadeId(cascade, props);
       var cascadeKey = cascadeId && getAltRender(catalog, cascadeId);
       var type = cascade[0];
-      return components[cascadeKey] || components[jsutils.capitalize(type)] || components[type] || components[cascadeId] || type;
+      return this.components[cascadeKey] || this.components[jsutils.capitalize(type)] || this.components[type] || this.components[cascadeId] || type;
     }
   }]);
   return Registry;
@@ -157,38 +155,63 @@ var registerComponents = function registerComponents() {
 var findComponent = function findComponent() {
   return jsutils.isFunc(registry.customFind) ? registry.customFind.apply(registry, arguments) : registry.find.apply(registry, arguments);
 };
+var getCached = function getCached(id) {
+  return registry.cached[id];
+};
+var addCached = function addCached(id) {
+  var comp = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+  registry.cached[id] = comp;
+  return registry.cached[id];
+};
 
 var getRenderEl = function getRenderEl(cascade, metadata, props, parent) {
-  var catalog = metadata.catalog,
-      identity = metadata.identity;
-  return React.createElement(findComponent(cascade, props, catalog, identity, parent), props, renderCascade(cascade[2], metadata, {
+  var catalog = metadata.catalog;
+  var FoundComp = findComponent(cascade, props, catalog, parent);
+  if (props.id) {
+    jsutils.isFunc(FoundComp) && addCached(props.id, FoundComp);
+    updateCatalogProps(jsutils.eitherObj(catalog[props.id], {}), props, metadata);
+  }
+  return React__default.createElement(FoundComp, props, renderCascade(cascade[2], metadata, {
     cascade: cascade,
     parent: parent,
     props: props
   }));
 };
+var buildCascadeNode = function buildCascadeNode(cascade, metadata, parent) {
+  if (!cascade || !cascade[0]) return null;
+  var props = buildCascadeProps(cascade, metadata, parent) || {};
+  return props.id && getCached(props.id) || getRenderEl(cascade, metadata, props, parent);
+};
+var loopCascadeArray = function loopCascadeArray(cascade, metadata, parent) {
+  var curPos = metadata.pos;
+  return cascade.map(function (child, index) {
+    metadata.pos = "".concat(curPos, ".2.").concat(index);
+    return renderCascade(child, metadata, parent);
+  });
+};
 var renderCascade = function renderCascade(cascade, metadata, parent) {
-  if (!jsutils.isColl(cascade)) return cascade;
-  if (cascade[0] === 'CASCADE_LOADING') return null;
-  return jsutils.isArr(cascade) ? cascade.map(function (child, index) {
-    return renderCascade(child, _objectSpread2({}, metadata, {
-      pos: "".concat(metadata.pos, ".2.").concat(index)
-    }), parent);
-  }) : cascade[0] && getRenderEl(cascade, metadata, buildCascadeProps(cascade, metadata, parent), parent) || null;
+  return !jsutils.isColl(cascade) ? cascade
+  : cascade[0] === 'CASCADE_LOADING' ? null : jsutils.isArr(cascade)
+  ? loopCascadeArray(cascade, metadata, parent) : buildCascadeNode(cascade, metadata, parent);
 };
 var Cascader = function Cascader(props) {
   if (!jsutils.isObj(props) || !jsutils.isColl(props.cascade)) {
     console.warn("Cascader requires a cascade object as a prop!", props);
     return null;
   }
-  return renderCascade(props.cascade, {
-    catalog: jsutils.eitherObj(props.catalog, {}),
+  if (props.catalog && !jsutils.isObj(props.catalog)) {
+    console.warn("Cascader requires the catalog prop to be an object or falsy!", props);
+    return null;
+  }
+  var metadata = {
+    catalog: jsutils.isObj(props.catalog) && props.catalog || {},
     styles: props.styles,
-    identity: props.identity,
-    pos: 0
-  }, _objectSpread2({}, jsutils.eitherObj(props.parent, {}), {
-    CASCADE_ROOT: true
-  }));
+    pos: '0'
+  };
+  props.getCatalog && React.useEffect(function () {
+    return jsutils.checkCall(props.getCatalog, metadata.catalog);
+  });
+  return renderCascade(props.cascade, metadata, jsutils.eitherObj(props.parent, {}));
 };
 
 exports.Cascader = Cascader;

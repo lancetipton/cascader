@@ -1,14 +1,16 @@
 import React from 'react'
 import { isObj, get, capitalize, isFunc } from 'jsutils'
-import { getAltRender, findCascadeId, getCascadeId } from '../utils'
+import { getAltRender, getCascadeId } from '../utils'
 
 // Helper to known then running tests
 const isTest = process.env.NODE_ENV === 'test'
 
-// Cache to hold registered components
-let components = {}
 
 class Registry {
+
+  // Cache to hold cache items
+  components = {}
+  cached = {}
 
   /**
   * Register a group of components to be searched when rendering
@@ -21,9 +23,9 @@ class Registry {
     if(!isObj(compList))
       return console.warn(`Cascade register method only accepts an object as it's first argument!`)
 
-    components = { ...components, ...compList, }
+    this.components = { ...this.components, ...compList, }
 
-    if(isTest) return components
+    if(isTest) return this.components
   }
 
   /**
@@ -33,7 +35,7 @@ class Registry {
    *
    * @returns {void}
    */
-  unset(key) { key ? (delete components[key]) : (components = {}) }
+  unset(key) { key ? (delete this.components[key]) : (this.components = {}) }
 
   /**
    * Gets a single registered component or all components
@@ -42,7 +44,7 @@ class Registry {
    *
    * @returns {React Component} - Matching registered component || All components
    */
-  get(key){ return (key && components[key] || components) }
+  get(key){ return (key && this.components[key] || this.components) }
 
   /**
   * Finds a registered React Component that matches the cascade node
@@ -56,7 +58,6 @@ class Registry {
   * @param {Object} cascade - Node describing a UI element
   * @param {Object} props - properties of the cascade node
   * @param {Object} catalog - Lookup table for cascade nodes
-  * @param {Object} identity - Maps position to and id, and visa versa
   * @param {Object} parent - Cascade nodes parent data
   * @param {Object} parent.cascade - Parent cascade node
   * @param {Object} parent.parent - Parent object of the parent cascade node
@@ -64,12 +65,10 @@ class Registry {
   *
   * @returns {React Component} - Matching registered component
   */
-  find(cascade, props, catalog, identity, parent){
+  find(cascade, props, catalog, parent){
 
     // Find the Id of the cascade node
-    const cascadeId = !isObj(identity) || !isObj(parent)
-      ? getCascadeId(cascade, props)
-      : findCascadeId(cascade, props, identity, parent)
+    const cascadeId = getCascadeId(cascade, props)
 
     // Use cascade Id to get the render key of the cascade node
     const cascadeKey = cascadeId && getAltRender(catalog, cascadeId)
@@ -78,10 +77,10 @@ class Registry {
     const type = cascade[0]
 
     // Look for the component by key, type, id || just return the original type
-    return components[cascadeKey] ||
-      components[capitalize(type)] ||
-      components[type] ||
-      components[cascadeId] ||
+    return this.components[cascadeKey] ||
+      this.components[capitalize(type)] ||
+      this.components[type] ||
+      this.components[cascadeId] ||
       type
   }
 
@@ -114,3 +113,9 @@ export const findComponent = (...args) => (
     : registry.find(...args)
 )
 
+export const getCached = id => registry.cached[id]
+
+export const addCached = (id, comp=null) => {
+  registry.cached[id] = comp
+  return registry.cached[id]
+}
