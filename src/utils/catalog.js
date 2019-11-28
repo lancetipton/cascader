@@ -48,15 +48,16 @@ export const updateCatalogProps = (catalogProps, props, metadata) => {
  * @function
  * @param {Object} catalog - Lookup table for cascade nodes
  * @param {string} id - ID of the cascade node
+ * @param {Object} lookup - Config options for how to lookup the render key
  *
  * @returns {string} - Type of component to render (div / img ) || ( React Component )
  */
-export const getAltRender = (catalog, id) => {
-
+export const getAltRender = (catalog, id, lookup={}) => {
+  lookup = { key: 'altRender', altKey: 'render', ...lookup }
   // Get catalogProps based on the id
   const catalogProps = getCatalogProps(catalog, id)
 
-  // Get the altRender || render from the catalogProps
-  return isObj(catalogProps) && (catalogProps.altRender || catalogProps.render)
+  // Get the render key || altKey from the catalogProps
+  return isObj(catalogProps) && (catalogProps[lookup.key] || catalogProps[lookup.altKey])
 
 }

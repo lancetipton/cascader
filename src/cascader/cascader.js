@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react'
 import { isObj, isArr, isFunc, isStr, eitherObj, isColl, get, checkCall, deepClone } from 'jsutils'
 import { findComponent, getCached, addCached } from '../register'
-import { buildCascadeProps, updateCatalogProps } from '../utils'
+import { buildCascadeProps, updateCatalogProps, buildConfig } from '../utils'
 
 /**
  * Gets a component from cache or tries to find it in the registered components
@@ -23,7 +23,7 @@ const getComponent = (cascade, metadata, props, parent) => {
   const CachedComp = id && getCached(id)
 
   // If no cached comp, Try to find it
-  const FoundComp = CachedComp || findComponent(cascade, props, catalog, parent)
+  const FoundComp = CachedComp || findComponent(cascade, props, metadata, parent)
 
   // Cache the found component which should make next render faster
   // Add cached component if there's no cached component and a function component was found
@@ -116,7 +116,7 @@ const renderCascade = (cascade, metadata, parent) => {
     ? cascade
     // If first element is Loading, return null
     // Helper for returning when an element needs to wait due to loading
-    : cascade[0] === 'CASCADE_LOADING'
+    : cascade[0] === metadata.isLoading
       ? null
       : isArr(cascade)
         // Get the element to be rendered, and return it
@@ -155,10 +155,17 @@ export const Cascader = props => {
     return null
   }
 
+  // Join the passed in config with the default config
+  const config = buildConfig(props.config)
+
+  
   const metadata = {
     catalog: isObj(props.catalog) && props.catalog || {},
     styles: props.styles,
     events:  props.events,
+    config: config,
+    // Cache the CASCADE_LOADING value, so we don't have to look it up each time
+    isLoading: get(config, [ 'constants', 'CASCADE_LOADING' ]),
     // Default position of the root cascade node
     pos: '0',
   }

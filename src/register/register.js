@@ -74,26 +74,31 @@ class Registry {
   *
   * @returns {React Component} - Matching registered component
   */
-  find = (cascade, props, catalog) => {
+  find = (cascade, props, { catalog, config }) => {
+    
+    const lookup = get(config, [ 'components', 'lookup' ], {})
 
     // If not cascade just return
     if(!cascade)
       return console.warn(`Find requires a cascade object as it's first argument`, cascade)
+    
+    if(!isObj(lookup))
+      return console.warn(`config.component.lookup must be of type object`, lookup)
 
     // Find the Id of the cascade node
     const cascadeId = getCascadeId(cascade, props)
 
     // Use cascade Id to get the render key of the cascade node
-    const cascadeKey = cascadeId && getAltRender(catalog, cascadeId)
+    const renderKey = cascadeId && getAltRender(catalog, cascadeId, lookup)
     
     // Get the cascade type
     const type = cascade[0]
 
     // Look for the component by key, type, id || just return the original type
-    return this.components[cascadeKey] ||
-      this.components[capitalize(type)] ||
-      this.components[type] ||
-      this.components[cascadeId] ||
+    return this.components[renderKey] ||
+      lookup.capitalize && this.components[capitalize(type)] ||
+      lookup.type && this.components[type] ||
+      lookup.id && this.components[cascadeId] ||
       type
   }
 

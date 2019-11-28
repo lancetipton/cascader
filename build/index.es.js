@@ -91,8 +91,28 @@ var updateCatalogProps = function updateCatalogProps(catalogProps, props, metada
   catalog[props.id] !== catalogProps && (metadata.catalog = _objectSpread2({}, catalog, _defineProperty({}, props.id, catalogProps)));
 };
 var getAltRender = function getAltRender(catalog, id) {
+  var lookup = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   var catalogProps = getCatalogProps(catalog, id);
-  return isObj(catalogProps) && (catalogProps.altRender || catalogProps.render);
+  return isObj(catalogProps) && isObj(lookup) && (lookup.key && catalogProps[lookup.key] || lookup.altKey && catalogProps[lookup.altKey]);
+};
+
+var defConfig = {
+  constants: {
+    CASCADE_LOADING: 'CASCADE_LOADING'
+  },
+  components: {
+    lookup: {
+      key: 'altRender',
+      altKey: 'render',
+      capitalizeType: true,
+      type: true,
+      id: true
+    }
+  }
+};
+var buildConfig = function buildConfig() {
+  var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return deepMerge(defConfig, config);
 };
 
 var Registry = function Registry() {
@@ -111,12 +131,16 @@ var Registry = function Registry() {
   _defineProperty(this, "get", function (key) {
     return key ? _this.components[key] : _this.components;
   });
-  _defineProperty(this, "find", function (cascade, props, catalog) {
+  _defineProperty(this, "find", function (cascade, props, _ref) {
+    var catalog = _ref.catalog,
+        config = _ref.config;
+    var lookup = get(config, ['components', 'lookup'], {});
     if (!cascade) return console.warn("Find requires a cascade object as it's first argument", cascade);
+    if (!isObj(lookup)) return console.warn("config.component.lookup must be of type object", lookup);
     var cascadeId = getCascadeId(cascade, props);
-    var cascadeKey = cascadeId && getAltRender(catalog, cascadeId);
+    var renderKey = cascadeId && getAltRender(catalog, cascadeId, lookup);
     var type = cascade[0];
-    return _this.components[cascadeKey] || _this.components[capitalize(type)] || _this.components[type] || _this.components[cascadeId] || type;
+    return _this.components[renderKey] || lookup.capitalizeType && _this.components[capitalize(type)] || lookup.type && _this.components[type] || lookup.id && _this.components[cascadeId] || type;
   });
   _defineProperty(this, "clear", function () {
     _this.cached = {};
@@ -146,7 +170,7 @@ var getComponent = function getComponent(cascade, metadata, props, parent) {
   var catalog = metadata.catalog;
   var id = props.id;
   var CachedComp = id && getCached(id);
-  var FoundComp = CachedComp || findComponent(cascade, props, catalog, parent);
+  var FoundComp = CachedComp || findComponent(cascade, props, metadata, parent);
   id && !CachedComp && isFunc(FoundComp) && addCached(id, FoundComp);
   id && updateCatalogProps(eitherObj(catalog[id], {}), props, metadata);
   return FoundComp;
@@ -173,7 +197,7 @@ var loopCascadeArray = function loopCascadeArray(cascade, metadata, parent) {
 };
 var renderCascade = function renderCascade(cascade, metadata, parent) {
   return !isColl(cascade) ? cascade
-  : cascade[0] === 'CASCADE_LOADING' ? null : isArr(cascade)
+  : cascade[0] === get(metadata, ['config', 'constants', 'CASCADE_LOADING']) ? null : isArr(cascade)
   ? loopCascadeArray(cascade, metadata, parent) : buildCascadeNode(cascade, metadata, parent);
 };
 var Cascader = function Cascader(props) {
@@ -193,6 +217,7 @@ var Cascader = function Cascader(props) {
     catalog: isObj(props.catalog) && props.catalog || {},
     styles: props.styles,
     events: props.events,
+    config: buildConfig(props.config),
     pos: '0'
   };
   props.getCatalog && useEffect(function () {
