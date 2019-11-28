@@ -16,7 +16,7 @@ import { buildCascadeProps, updateCatalogProps, buildConfig } from '../utils'
  * @returns
  */
 const getComponent = (cascade, metadata, props, parent) => {
-  const { catalog } = metadata
+  const { catalog, buildCatalog } = metadata
   const { id } = props
 
   // Check if the comp is cached
@@ -29,8 +29,12 @@ const getComponent = (cascade, metadata, props, parent) => {
   // Add cached component if there's no cached component and a function component was found
   id && !CachedComp && isFunc(FoundComp) && addCached(id, FoundComp)
   
-  // Update the catalog with update props when an id exists
-  id && updateCatalogProps(eitherObj(catalog[id], {}), props, metadata)
+  // Update the catalog with update props when an id exists and buildCatalog === true
+  id && buildCatalog && updateCatalogProps(
+    eitherObj(catalog[id], {}),
+    props,
+    metadata
+  )
 
   // Return the found component
   return FoundComp
@@ -157,7 +161,7 @@ export const Cascader = props => {
 
   // Join the passed in config with the default config
   const config = buildConfig(props.config)
-
+  
   
   const metadata = {
     catalog: isObj(props.catalog) && props.catalog || {},
@@ -166,6 +170,10 @@ export const Cascader = props => {
     config: config,
     // Cache the CASCADE_LOADING value, so we don't have to look it up each time
     isLoading: get(config, [ 'constants', 'CASCADE_LOADING' ]),
+    // Check if the catalog should be built while rendering
+    // If there is a getCatalog method, and
+    // The config.catalog.build options is not set to false
+    buildCatalog: props.getCatalog && get(config, [ 'catalog', 'build' ]) !== false,
     // Default position of the root cascade node
     pos: '0',
   }

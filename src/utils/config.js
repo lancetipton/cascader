@@ -12,6 +12,9 @@ const defConfig = {
       type: true,
       id: true
     }
+  },
+  catalog: {
+    build: true
   }
 }
 

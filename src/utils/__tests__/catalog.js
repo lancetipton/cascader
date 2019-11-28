@@ -135,4 +135,17 @@ describe('/catalog', () => {
   })
 
 
+  describe('catalogFromCascade', () => {
+
+    it('', () => {
+      const builtCatalog = Catalog.catalogFromCascade(cascade)
+      
+    })
+
+    it('', () => {
+      const builtCatalog = Catalog.catalogFromCascade(cascade, true)
+    })
+
+  })
+
 })
