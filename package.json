@@ -28,6 +28,7 @@
     "format:eslint": "eslint --config configs/eslintrc.config.js . --fix --quiet",
     "format:prettier": "prettier --config configs/prettier.config.js --ignore-path .eslintignore --write '**/*.{js,jsx}'",
     "format": "yarn format:prettier && yarn format:eslint",
+    "prepublish": "yarn format && yarn test && yarn build",
     "start": "yarn build:clean DEV_BUILD=1 node --enable-source-maps configs/build.config.js",
     "test": "NODE_ENV=test jest --colors --verbose --config configs/jest.config.js",
     "test:cov": "NODE_ENV=test jest --colors --verbose --coverage --config configs/jest.config.js",
