@@ -11,7 +11,8 @@
     "build": "node configs/build.config.js",
     "dev": "DEV_BUILD=1 node --enable-source-maps configs/build.config.js",
     "start": "DEV_BUILD=1 node --enable-source-maps configs/build.config.js",
-    "test": "NODE_ENV=test jest --verbose --config configs/jest.config.js"
+    "test": "NODE_ENV=test jest --colors --verbose --config configs/jest.config.js",
+    "test:cov": "NODE_ENV=test jest --colors --verbose --coverage --config configs/jest.config.js"
   },
   "devDependencies": {
     "@keg-hub/jsutils": "9.3.5",
