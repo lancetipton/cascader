@@ -8,53 +8,28 @@
   "author": "Lance Tipton",
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "test": "NODE_ENV=test jest --no-cache --verbose"
+    "build": "node configs/build.config.js",
+    "dev": "DEV_BUILD=1 node --enable-source-maps configs/build.config.js",
+    "start": "DEV_BUILD=1 node --enable-source-maps configs/build.config.js",
+    "test": "NODE_ENV=test jest --verbose --config configs/jest.config.js"
   },
   "devDependencies": {
-    "@babel/core": "7.5.5",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/preset-env": "7.5.5",
-    "@babel/preset-react": "7.0.0",
-    "@rollup/plugin-replace": "^2.2.1",
-    "babel-jest": "24.7.1",
-    "jest": "24.7.1",
-    "jsutils": "git+https://github.com/lancetipton/jsutils.git",
-    "react": ">= 16.8.3",
-    "rollup": "1.20.3",
-    "rollup-plugin-babel": "4.3.3",
-    "rollup-plugin-cleanup": "3.1.1",
-    "rollup-plugin-commonjs": "10.1.0",
-    "rollup-plugin-node-resolve": "5.2.0",
-    "rollup-plugin-sourcemaps": "^0.4.2"
+    "@keg-hub/jsutils": "9.3.5",
+    "@types/jest": "29.0.3",
+    "@types/node": "18.7.18",
+    "@types/react": "18.0.20",
+    "@types/react-dom": "18.0.6",
+    "esbuild": "0.15.8",
+    "esbuild-jest": "0.5.0",
+    "esbuild-plugin-path-alias": "1.0.6",
+    "jest": "29.2.0",
+    "jest-environment-jsdom": "29.0.3",
+    "react": "18.2.0",
+    "ts-node": "10.9.1",
+    "typescript": "4.8.3"
   },
   "peerDependencies": {
-    "jsutils": "git+https://github.com/lancetipton/jsutils.git",
-    "react": ">= 16.8.3"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.js$": "babel-jest"
-    },
-    "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.js?(x)"
-    ],
-    "collectCoverageFrom": [
-      "<rootDir>/src/index.js"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "jsx",
-      "es6"
-    ],
-    "globals": {
-      "__DEV__": true
-    },
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/setupTests.js"
-    ]
+    "@keg-hub/jsutils": "9.3.5",
+    "react": ">= 18.0.0"
   }
 }

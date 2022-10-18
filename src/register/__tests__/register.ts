@@ -1,11 +1,11 @@
 import { cascadeModel, buildParent } from '../../mocks'
-import { get, deepClone } from 'jsutils'
+import { get, deepClone } from '@keg-hub/jsutils'
 import { Cascader } from '../../cascader'
 import { buildConfig } from '../../utils'
 
 const { styles } = cascadeModel
-let cascade
-let catalog
+let cascade:any
+let catalog:any
 const TestComp = () => ('I am the test component!')
 const TestComp2 = () => ('I am the test 2 component!')
 
@@ -114,7 +114,7 @@ describe('/register', () => {
       Register.registerComponents(allComps)
 
       Object.keys(Register.getComponents())
-        .map(key => expect(allComps[key]).toBe(TestComp))
+        .map(key => expect(allComps[key as keyof typeof allComps]).toBe(TestComp))
 
       Register.removeComponents()
 

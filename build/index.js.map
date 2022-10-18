@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/index.ts"],
+  "sourcesContent": ["import { Cascader } from './cascader'\nimport { registerComponents, registerCustomFind } from './register'\n\nexport {\n  Cascader,\n  registerComponents,\n  registerCustomFind\n}"],
+  "mappings": ";AAAA,SAAS,gBAAgB;AACzB,SAAS,oBAAoB,0BAA0B;AAEvD;AAAA,EACE;AAAA,EACA;AAAA,EACA;AAAA;",
+  "names": []
+}

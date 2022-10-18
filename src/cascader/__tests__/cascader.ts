@@ -1,5 +1,5 @@
 import { cascadeModel, consoleOverride } from '../../mocks'
-import { get } from 'jsutils'
+import { get } from '@keg-hub/jsutils'
 
 const { registerComponents, removeComponents, getComponents, clear } = require('../../register')
 const Cascader = require('../cascader').Cascader

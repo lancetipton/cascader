@@ -1,21 +1,31 @@
 /** @module Cascader */
+import type { ReactNode } from 'react'
+import type {
+  TCascade,
+  TNodeProps,
+  TReactComp,
+  TCascadeNode,
+  TCascadeItem,
+  TCascadeMeta,
+  TCatalogProps,
+} from '../types'
 
-import React, { useEffect } from 'react'
-import { isObj, isArr, isFunc, isStr, eitherObj, isColl, get, checkCall, deepClone } from 'jsutils'
+
+import { useEffect, createElement } from 'react'
 import { findComponent, getCached, addCached } from '../register'
 import { buildCascadeProps, updateCatalogProps, buildConfig } from '../utils'
+import { isObj, isArr, isFunc, eitherObj, isColl, get, checkCall } from '@keg-hub/jsutils'
 
 /**
  * Gets a component from cache or tries to find it in the registered components
  * <br> Also add to cache when a component is found, and the node has an id
- * @function
- * @param {Object} cascade - The nodes to be rendered
- * @param {Object} metadata - Extra data for cascade nodes
- * @param {Object} props - Cascade nodes props
-* @param {Object} parent - Cascade nodes parent data
- * @returns
  */
-const getComponent = (cascade, metadata, props, parent) => {
+const getComponent = (
+  cascade:TCascadeNode,
+  metadata:TCascadeMeta,
+  props:TNodeProps,
+  parent:TNodeProps
+) => {
   const { catalog, buildCatalog } = metadata
   const { id } = props
 
@@ -31,68 +41,68 @@ const getComponent = (cascade, metadata, props, parent) => {
   
   // Update the catalog with update props when an id exists and buildCatalog === true
   id && buildCatalog && updateCatalogProps(
-    eitherObj(catalog[id], {}),
+    eitherObj<TCatalogProps, TCatalogProps>(catalog[id], {} as TCatalogProps),
     props,
     metadata
   )
 
   // Return the found component
-  return FoundComp
+  return FoundComp as TReactComp
 }
 
 /**
  * Creates a React component by calling the React.createElement method
- * @function
- * @param {Object} cascade - The nodes to be rendered
- * @param {Object} metadata - Extra data for cascade nodes
- * @param {Object} props - Cascade nodes props
- * @returns {React Component}
  */
-const getRenderEl = (cascade, metadata, props, parent) => {
+const getRenderEl = (
+  cascade:TCascadeNode,
+  metadata:TCascadeMeta,
+  props:TNodeProps,
+  parent:TNodeProps
+):ReactNode => {
 
   // Create the react version of the element
-  return React.createElement(
+  return createElement(
     // Get the component to use, either a string || React function component
     getComponent(cascade, metadata, props, parent),
     props,
     // Render the children of the cascade node
-    renderCascade(cascade[2], metadata, { cascade, parent, props })
+    renderCascade(
+      cascade[2],
+      metadata,
+      { cascade, parent, props }
+    )
   )
 }
 
 /**
  * Builds a single cascade node and returns it, or null if node can not be built
- * @function
- * @param {Object} cascade - The nodes to be rendered
- * @param {Object} metadata - Extra data for cascade nodes
- * @param {Object} parent - Cascade nodes parent data
- *
- * @return {Object} React vDom element
  */
-const buildCascadeNode = (cascade, metadata, parent) => {
+const buildCascadeNode = (
+  cascade:TCascadeNode,
+  metadata:TCascadeMeta,
+  parent:TNodeProps
+) => {
 
   // If no cascade, or no type, return null
   return !cascade || !cascade[0]
     ? null
     : getRenderEl(
-      cascade,
-      metadata,
-      // Build the props for the cascade node
-      eitherObj(buildCascadeProps(cascade, metadata, parent), {}),
-      parent
-    )
+        cascade,
+        metadata,
+        // Build the props for the cascade node
+        eitherObj(buildCascadeProps(cascade, metadata, parent), {}),
+        parent
+      )
 }
 
 /**
  * Loops an array, calling renderCascade on each element
- * @function
- * @param {Object} cascade - The nodes to be rendered
- * @param {Object} metadata - Extra data for cascade nodes
- * @param {Object} parent - Cascade nodes parent data
- *
- * @return {Array} rendered React vDom elements
  */
-const loopCascadeArray = (cascade, metadata, parent) => {
+const loopCascadeArray = (
+  cascade:TCascadeNode[],
+  metadata:TCascadeMeta,
+  parent:TNodeProps
+):ReactNode[] => {
   // Cache the current pos, because we update metadata in place
   // This keeps the correct pos for each child of the cascade
   const curPos = metadata.pos
@@ -114,7 +124,11 @@ const loopCascadeArray = (cascade, metadata, parent) => {
  *
  * @return {Object} rendered React vDom elements
  */
-const renderCascade = (cascade, metadata, parent) => {
+const renderCascade = (
+  cascade:TCascadeNode|TCascadeItem,
+  metadata:TCascadeMeta,
+  parent:TNodeProps
+):ReactNode => {
   // If not a collection, it should just return the value
   return !isColl(cascade)
     ? cascade
@@ -133,15 +147,8 @@ const renderCascade = (cascade, metadata, parent) => {
 /**
  * Kicks off the cascade render
  * <br> Validates passed in props, and logs warning when they are incorrect
- * @function
- * @param {Object} props - component props passed from the consumer
- * @param {Object} props.cascade - The cascade tree render
- * @param {Object} props.catalog - Lookup table for cascade nodes
- * @param {Object} props.styles - Styles by size for cascade nodes
- *
- * @returns {React Component} - React component tree of the passed in cascade
  */
-export const Cascader = props => {
+export const Cascader = (props:TCascade) => {
 
   // Ensure a cascade object exists
   if(!isObj(props) || !isColl(props.cascade)){
@@ -161,9 +168,8 @@ export const Cascader = props => {
 
   // Join the passed in config with the default config
   const config = buildConfig(props.config)
-  
-  
-  const metadata = {
+
+  const metadata:TCascadeMeta = {
     catalog: isObj(props.catalog) && props.catalog || {},
     styles: props.styles,
     events:  props.events,

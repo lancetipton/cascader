@@ -1,5 +1,5 @@
 import { cascadeModel } from './cascadeModel'
-import { get } from 'jsutils'
+import { get } from '@keg-hub/jsutils'
 
 const { cascade, catalog } = cascadeModel
 
@@ -9,7 +9,7 @@ const { cascade, catalog } = cascadeModel
  *
  * @returns {Object} - cascade node at the pos position
  */
-const buildParent = pos => {
+const buildParent = (pos:string) => {
   const parentNode = get(cascade, pos)
   const parentId = get(parentNode, '1.id')
   return { cascade: parentNode, props: { ...catalog[parentId], ...parentNode[1] }, parent: {} }
@@ -21,9 +21,10 @@ const buildParent = pos => {
  *
  * @returns {function} - helper to reset the console override
  */
-const consoleOverride = type => {
+const consoleOverride = (type:keyof typeof console) => {
   const oldType = console[type]
   console[type] = jest.fn()
+  // @ts-ignore
   return () => console[type] = oldType
 }
 

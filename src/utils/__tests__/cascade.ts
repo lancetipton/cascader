@@ -1,7 +1,8 @@
-import { cascadeModel, buildParent, consoleOverride } from '../../mocks'
-import { get, deepClone } from 'jsutils'
+import type { TCascadeNode, TMetaCatalog } from '../../types'
+import { cascadeModel, buildParent } from '../../mocks'
+import { get, deepClone } from '@keg-hub/jsutils'
 
-const { cascade, catalog, styles } = cascadeModel
+const { cascade, catalog } = cascadeModel
 
 const Cascade = require('../cascade')
 
@@ -13,7 +14,7 @@ describe('/cascade', () => {
 
     it('should return the joined props of from the catalog and node', () => {
       
-      const catalogCopy = deepClone(catalog)
+      const catalogCopy = deepClone<TMetaCatalog>(catalog)
       const parent = buildParent('2.0')
       const node = get(cascade, '2.0.2.0')
       node[1].inlineTest = `INLINE PROP`
@@ -27,9 +28,9 @@ describe('/cascade', () => {
 
     it('should join the props from the parent catalogProps.children[id] when it exists', () => {
 
-      const catalogCopy = deepClone(catalog)
+      const catalogCopy = deepClone<TMetaCatalog>(catalog)
       const parent = buildParent('2.0')
-      const node = deepClone(get(cascade, '2.0.2.0'))
+      const node = deepClone<TCascadeNode>(get(cascade, '2.0.2.0'))
       node[1].inlineTest = `INLINE PROP`
       catalogCopy[ node[1].id ].catalogTest = `CATALOG PROP`
       parent.props.children = { [ node[1].id ]: { parentTest: `PARENT PROP` } }
@@ -45,9 +46,9 @@ describe('/cascade', () => {
 
     it('should have the catalogProps override the parentProps', () => {
 
-      const catalogCopy = deepClone(catalog)
+      const catalogCopy = deepClone<TMetaCatalog>(catalog)
       const parent = buildParent('2.0')
-      const node = deepClone(get(cascade, '2.0.2.0'))
+      const node = deepClone<TCascadeNode>(get(cascade, '2.0.2.0'))
       catalogCopy[ node[1].id ].overRideTest = `CATALOG PROP`
       parent.props.children = { [ node[1].id ]: { overRideTest: `PARENT PROP` } }
       
@@ -60,9 +61,9 @@ describe('/cascade', () => {
 
     it('should have the inlineProps override the catalogProps', () => {
 
-      const catalogCopy = deepClone(catalog)
+      const catalogCopy = deepClone<TMetaCatalog>(catalog)
       const parent = buildParent('2.0')
-      const node = deepClone(get(cascade, '2.0.2.0'))
+      const node = deepClone<TCascadeNode>(get(cascade, '2.0.2.0'))
       node[1].overRideTest = `INLINE PROP`
       catalogCopy[ node[1].id ].overRideTest = `CATALOG PROP`
 
@@ -74,9 +75,9 @@ describe('/cascade', () => {
 
     it('should have the inlineProps override the parentProps', () => {
 
-      const catalogCopy = deepClone(catalog)
+      const catalogCopy = deepClone<TMetaCatalog>(catalog)
       const parent = buildParent('2.0')
-      const node = deepClone(get(cascade, '2.0.2.0'))
+      const node = deepClone<TCascadeNode>(get(cascade, '2.0.2.0'))
       node[1].overRideTest = `INLINE PROP`
       catalogCopy[ node[1].id ].overRideTest = `CATALOG PROP`
       parent.props.children = { [ node[1].id ]: { overRideTest: `PARENT PROP` } }
@@ -91,7 +92,7 @@ describe('/cascade', () => {
     it('should return the inlineProps when no id can be found', () => {
 
       const parent = buildParent('2.0')
-      const node = deepClone(get(cascade, '2.0.2.0'))
+      const node = deepClone<TCascadeNode>(get(cascade, '2.0.2.0'))
       const nodeId = node[1].id
       const nodePos = catalog[nodeId].pos
 

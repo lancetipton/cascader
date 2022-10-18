@@ -1,7 +1,7 @@
 import { cascadeModel, consoleOverride } from '../../mocks'
-import { get } from 'jsutils'
+import { get } from '@keg-hub/jsutils'
 
-const { cascade, catalog, styles } = cascadeModel
+const { cascade, catalog } = cascadeModel
 
 const Catalog = require('../catalog')
 

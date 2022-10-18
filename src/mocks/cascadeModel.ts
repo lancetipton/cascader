@@ -1,4 +1,12 @@
-export const cascadeModel = {
+import type { TMetaStyles, TCascadeNode, TMetaCatalog } from '../types'
+
+type TCascadeModel = {
+  cascade: TCascadeNode
+  catalog: TMetaCatalog
+  styles: TMetaStyles
+}
+
+export const cascadeModel:TCascadeModel = {
   cascade: {
     0: 'form',
     1: {

@@ -19,7 +19,7 @@ export default {
       format: "cjs",
     },
   ],
-  external: ['react', 'react-native', 'jsutils' ],
+  external: ['react', 'react-native', '@keg-hub/jsutils' ],
   watch: {
     clearScreen: false
   },

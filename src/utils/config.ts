@@ -1,4 +1,4 @@
-import { deepMerge } from 'jsutils'
+import { deepMerge } from '@keg-hub/jsutils'
 
 const defConfig = {
   constants: {
