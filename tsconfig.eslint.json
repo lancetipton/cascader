@@ -18,13 +18,6 @@
     "forceConsistentCasingInFileNames": true,
     "lib": ["dom", "dom.iterable", "esnext"]
   },
-  "include": ["src/**/*"],
-  "exclude": [
-    "src/__tests__",
-    "coverage",
-    "configs",
-    "src/__tests__/**",
-    "src/**/__tests__/**",
-    "src/mocks"
-  ]
+  "include": ["src/**/*", "configs"],
+  "exclude": ["src/__tests__", "coverage"]
 }

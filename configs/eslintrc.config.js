@@ -1,21 +1,14 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: 'tsconfig.json',
+    project: 'tsconfig.eslint.json',
     tsconfigRootDir: require('path').join(__dirname, '../'),
   },
-  ignorePatterns: [
-    'build/',
-  ],
+  ignorePatterns: ['build/'],
   globals: {
     jest: true,
     __DEV__: true,
     expect: true,
-  },
-  parserOptions: {
-    ecmaVersion: 6,
-    sourceType: 'module',
-    ecmaFeatures: {},
   },
   env: {
     es6: true,
@@ -24,22 +17,13 @@ module.exports = {
     'jest/globals': true,
   },
   plugins: ['jest'],
-  extends: ['eslint:recommended', 'plugin:jest/recommended', 'prettier'],
+  extends: [ 'eslint:recommended', 'plugin:jest/recommended' ],
   settings: {},
   rules: {
     /* General */
     'no-use-before-define': 'off',
-    '@typescript-eslint/no-use-before-define': ['error'],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-unused-vars': [
-      'error',
-      {
-        args: 'none',
-        ignoreRestSiblings: true,
-        varsIgnorePattern: '_',
-      },
-    ],
     '@typescript-eslint/no-var-requires': 0,
     'no-console': [ 'warn', { allow: [ 'warn', 'error' ] }],
     'brace-style': [ 'error', 'stroustrup' ],
@@ -108,7 +92,13 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['**/*.test.js', '**/*.spec.js', '**/*.test.ts', '**/*.spec.ts', 'tasks/**'],
+      files: [
+        '**/*.test.js',
+        '**/*.spec.js',
+        '**/*.test.ts',
+        '**/*.spec.ts',
+        '**/__tests__/**.*',
+      ],
       rules: {
         '@typescript-eslint/no-explicit-any': 'off',
       },
